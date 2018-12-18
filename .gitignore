@@ -1,0 +1,13 @@
+# ignore .out
+*.out
+
+# ignore auto backup
+*~
+
+# ignore test code and data
+test.*
+
+# ignore emacs temporary file
+\#*#
+\#*
+*\#*
