@@ -11,3 +11,13 @@ test.*
 \#*#
 \#*
 *\#*
+
+# ignore emacs helm-gtags databases
+GTAGS
+GRTAGS
+GPATH
+
+# ignore picture data
+*.jpg
+*.png
+*.bmp
