@@ -1,6 +1,9 @@
 # ignore .out
 *.out
 
+# ignore build folder
+build/*
+
 # ignore auto backup
 *~
 
@@ -21,3 +24,6 @@ GPATH
 *.jpg
 *.png
 *.bmp
+
+# ignore outline
+outline.*
