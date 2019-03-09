@@ -3,7 +3,6 @@
 
 namespace preprocess {
 
-
 }
 
 #endif  // SERVER_SALIENCY_PRE_PROCESS_H_

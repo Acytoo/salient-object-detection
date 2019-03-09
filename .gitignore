@@ -1,8 +1,9 @@
-# ignore .out
+# ignore .out and .run
 *.out
+*.run
 
 # ignore build folder
-build/*
+build
 
 # ignore auto backup
 *~
@@ -27,3 +28,6 @@ GPATH
 
 # ignore outline
 outline.*
+
+# ignore documents for now
+doc
