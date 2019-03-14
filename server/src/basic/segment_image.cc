@@ -112,20 +112,3 @@ int SegmentImage(const Mat& _src3f, Mat& pImgInd,
   return idxNum;
 }
 
-// void SegmentImageDemo(const string& inImgW, const string& outDir,
-//                       double sigma, double k, int min_size) {
-//   vec<string> names;
-//   string inDir;
-//   CmFile::MkDir(outDir);
-//   int imgNum = CmFile::GetNames(inImgW, names, inDir);
-// #pragma omp parallel for
-//   for (int i = 0; i < imgNum; i++) {
-//     printf("%-40s\r", names[i].c_str());
-//     Mat img3u = imread(inDir + names[i], CV_LOAD_IMAGE_COLOR);
-//     Mat imgIdx, img3f;
-//     img3u.convertTo(img3f, CV_32FC3, 1.0/255);
-//     int regNum = SegmentImage(img3f, imgIdx, sigma, k, min_size);
-//     CmShow::Label(imgIdx, outDir+names[i], regNum);
-//   }
-//   printf("%-40s\r", "");
-// }

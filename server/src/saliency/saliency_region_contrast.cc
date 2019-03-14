@@ -74,12 +74,6 @@ Mat regioncontrast::RegionContrast::GetRegionContrast(const cv::Mat& img3f,
 }
 
 
-
-
-
-
-
-
 int regioncontrast::RegionContrast::Quantize(const cv::Mat &img3f,
                                              cv::Mat &idx1i,
                                              cv::Mat &_color3f,

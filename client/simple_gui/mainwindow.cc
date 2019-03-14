@@ -36,12 +36,21 @@ void MainWindow::on_btn_process_clicked()
            }
        QPixmap img_ori(file_path.c_str());
        ui->label_img_ori->setPixmap(img_ori.scaled(400,400,Qt::KeepAspectRatio));
-       std::string result_path;
-       std::thread img_process_thread(saliencycut::SaliencyCut::ProcessSingleImg, std::ref(file_path), std::ref(result_path));
+       std::string result_path_rc, result_path_rcc;
+       std::thread img_process_thread(saliencycut::SaliencyCut::ProcessSingleImg, std::ref(file_path), std::ref(result_path_rc), std::ref(result_path_rcc));
        img_process_thread.join();
 
-       QPixmap img_rc(result_path.c_str());
+       QPixmap img_rc(result_path_rc.c_str());
        ui->label_img_rc->setPixmap(img_rc.scaled(400,400,Qt::KeepAspectRatio));
+       QPixmap img_rcc(result_path_rcc.c_str());
+       ui->label_img_rcc->setPixmap(img_rcc.scaled(400,400,Qt::KeepAspectRatio));
+
+       QString original_path = "Original image at " + QString::fromStdString(file_path);
+       QString result_rc_path = "RC saved at " + QString::fromStdString(result_path_rc);
+       QString result_rcc_path = "RCC saved at " + QString::fromStdString(result_path_rcc);
+       ui->label_original_path->setText(original_path);
+       ui->label_result_rc_path->setText(result_rc_path);
+       ui->label_result_rcc_path->setText(result_rcc_path);
 }
 
 void MainWindow::on_btn_browse_clicked()

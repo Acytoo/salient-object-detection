@@ -106,82 +106,82 @@ static inline int findFromList(const T &word, const vector<T> &strList) {size_t 
 
 template<typename T> vector<T> operator +(const vector<T>& v1, const vector<T> &v2)
 {
-	vector<T> result(v1);
-	for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
-		result[i] = v1[i] + v2[i];
-	return result;
+  vector<T> result(v1);
+  for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
+    result[i] = v1[i] + v2[i];
+  return result;
 }
 
 template<typename T> vector<T> operator -(const vector<T>& v1, const vector<T> &v2)
 {
-	vector<T> result(v1);
-	for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
-		result[i] = v1[i] - v2[i];
-	return result;
+  vector<T> result(v1);
+  for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
+    result[i] = v1[i] - v2[i];
+  return result;
 }
 
 template<typename T> vector<T> operator *(const vector<T>& v1, const vector<T> &v2)
 {
-	vector<T> result(v1);
-	for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
-		result[i] = v1[i] * v2[i];
-	return result;
+  vector<T> result(v1);
+  for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
+    result[i] = v1[i] * v2[i];
+  return result;
 }
 
 template<typename T> vector<T> operator /(const vector<T>& v1, const vector<T> &v2)
 {
-	vector<T> result(v1.size());
-	for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
-		result[i] = v1[i] / v2[i];
-	return result;
+  vector<T> result(v1.size());
+  for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
+    result[i] = v1[i] / v2[i];
+  return result;
 }
 
 template<typename T> void operator *=(vector<T>& v, T s)
 {
-	int vSize = (int)v.size();
-	for (int i = 0; i < vSize; i++)
-		v[i] *= s;
+  int vSize = (int)v.size();
+  for (int i = 0; i < vSize; i++)
+    v[i] *= s;
 }
 
 
 template<typename T> vector<T> operator *(const vector<T>& v1, T s)
 {
-	vector<T> result(v1.size());
-	for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
-		result[i] = v1[i] * s;
-	return result;
+  vector<T> result(v1.size());
+  for (size_t i = 0, iEnd = v1.size(); i != iEnd; i++)
+    result[i] = v1[i] * s;
+  return result;
 }
 
 template<class T> void maxSize(const vector<Point_<T>> &pnts, T &minS, T &maxS)
 {
-	CV_Assert(pnts.size() > 0);
-	minS = maxS = pnts[0].x;
-	for (int i = 0, iEnd = (int)pnts.size(); i < iEnd; i++)
+  CV_Assert(pnts.size() > 0);
+  minS = maxS = pnts[0].x;
+  for (int i = 0, iEnd = (int)pnts.size(); i < iEnd; i++)
 	{
-		minS = min(minS, pnts[i].x);
-		minS = min(minS, pnts[i].y);
-		maxS = max(maxS, pnts[i].x);
-		maxS = max(maxS, pnts[i].y);
+      minS = min(minS, pnts[i].x);
+      minS = min(minS, pnts[i].y);
+      maxS = max(maxS, pnts[i].x);
+      maxS = max(maxS, pnts[i].y);
 	}
 }
 
 template<typename T> inline bool lessThan(const Vec<T, 2> &v1, const Vec<T, 2> &v2)
 {
-	if (v1.val[0] < v2.val[0])
-		return true;
-	else if (v1.val[0] > v2.val[0])
-		return false;
-	else
-		return v1.val[1] < v2.val[1];
+  if (v1.val[0] < v2.val[0])
+    return true;
+  else if (v1.val[0] > v2.val[0])
+    return false;
+  else
+    return v1.val[1] < v2.val[1];
 }
 
-#define CV_Assert_(expr, args) \
-{\
-	if(!(expr)) {\
-	string msg = cv::format args; \
-	printf("%s in %s:%d\n", msg.c_str(), __FILE__, __LINE__); \
-	cv::error(cv::Exception(CV_StsAssert, msg, __FUNCTION__, __FILE__, __LINE__) ); }\
-}
+#define CV_Assert_(expr, args)                                          \
+  {                                                                     \
+	if(!(expr)) {                                                       \
+      string msg = cv::format args;                                     \
+      printf("%s in %s:%d\n", msg.c_str(), __FILE__, __LINE__);         \
+      cv::error(cv::Exception(CV_StsAssert, msg, __FUNCTION__, __FILE__, __LINE__) ); } \
+  }
 
 #define charPointers2StrVec(arrayOfCharPointer) (vecS(arrayOfCharPointer, std::end(arrayOfCharPointer)))
 

@@ -24,7 +24,7 @@ namespace regioncontrast{
     }
 
 	static cv::Mat GetRegionContrast(const cv::Mat& img3f, double sigma_dist,
-                     double segK, int seg_min_size, double seg_sigma);
+                                     double segK, int seg_min_size, double seg_sigma);
 
     static cv::Mat GetRegionContrast(const cv::Mat& img3f, const cv::Mat& idx1i,
                                      int reg_num, double sigma_dist = 0.4);

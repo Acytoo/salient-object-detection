@@ -1,5 +1,5 @@
 /*
-  Modified by Alec Chen on Mar. 8th, 2019.
+  Modified by Ming-Ming on Aug. 15th, 2010.
 
   Copyright (C) 2006 Pedro Felzenszwalb
 
@@ -21,7 +21,7 @@
 #ifndef SERVER_BASIC_SEGMENT_IMAGE_H_
 #define SERVER_BASIC_SEGMENT_IMAGE_H_
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+/* #include <opencv2/highgui/highgui.hpp> */
 #include <opencv2/imgproc/imgproc.hpp>
 
 /*
@@ -44,10 +44,7 @@
 
 
 int SegmentImage(const cv::Mat& _src3f, cv::Mat& pImgInd,
-                 double sigma = 0.5, double k = 200, int min_size = 50);
+                 double sigma = 0.5, double c = 200, int min_size = 50);
 
-
-/* void SegmentImageDemo(const std::string& inImgW, const std::string& outDir, */
-/*                       double sigma, double k, int min_size); */
 
 #endif

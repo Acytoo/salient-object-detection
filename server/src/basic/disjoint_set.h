@@ -1,6 +1,4 @@
 /*
-  Modified by Alec Chen on Mar. 8th, 2019.
-
   Copyright (C) 2006 Pedro Felzenszwalb
 
   This program is free software; you can redistribute it and/or modify
@@ -30,7 +28,7 @@ typedef struct {
 } uni_elt;
 
 class universe {
- public:
+public:
   universe(int elements);
   ~universe();
   int find(int x);
@@ -38,7 +36,7 @@ class universe {
   int size(int x) const { return elts[x].size; }
   int nu_sets() const { return num; }
 
- private:
+private:
   uni_elt *elts;
   int num;
 };
