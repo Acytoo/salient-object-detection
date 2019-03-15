@@ -71,19 +71,20 @@ saliencycut::SaliencyCut::~SaliencyCut(void) {
 }
 
 
-
-
-
 int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
                                                string& result_rc_path,
                                                string& result_rcc_path) {
 
   int end_pos = img_path.rfind(".");
-  result_rc_path = img_path.substr(0, end_pos) + "_RC.png";
-  result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png";
+  result_rc_path = img_path.substr(0, end_pos) + "_RC.png"; // Region contrast
+  result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png"; // Region contrast cut
   //first error detection, permission and presense of the image
   //imread 2nd parameter 0: grayscale; 1: 3 channels; -1: as is(with alpha channel)
   Mat img3f = imread(img_path, 1);
+  if (!img3f.data) {
+    cout << "empty image" << endl;
+    return -1;
+  }
   //convert to float, 3 channels
   img3f.convertTo(img3f, CV_32FC3, 1.0/255, 0);
 
@@ -91,6 +92,7 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
   Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
   // imshow("sal", sal);
   // waitKey(0);
+  cout << "M" << endl << endl << endl << sal << endl;
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_PNG_COMPRESSION);
   compression_params.push_back(9);
@@ -106,8 +108,10 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
     cutMat = saliencycut::SaliencyCut::CutObjs(img3f, sal, 0.1f, t);
     t -= 0.2f;
   }
-  if (!cutMat.empty())
+  if (!cutMat.empty()) {
     imwrite(result_rcc_path, cutMat);
+    cout << "M" << endl << cutMat << endl;
+  }
   else
     cout << "EEEOR! when save rcc" << endl;
 

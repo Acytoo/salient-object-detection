@@ -1,4 +1,5 @@
 /* graph.h */
+/*added _error_message_ to avoid warning: ISO C++ forbids converting a string constant to ‘char*’ [-Wwrite-strings] by Alec @ 15.3 2019*/
 /*
   This software library implements the maxflow algorithm
   described in
@@ -39,7 +40,6 @@
 #ifndef SERVER_BASIC_GRAPH_H_
 #define SERVER_BASIC_GRAPH_H_
 
-#include <string.h>
 #include "block.h"
 
 #include <assert.h>
@@ -301,7 +301,6 @@ private:
   DBlock<nodeptr>		*nodeptr_block;
 
   void	(*error_function)(char *);	// this function is called if a error occurs,
-  // void	(*error_function)(std::string);
   // with a corresponding error message
   // (or exit(1) is called if it's NULL)
 
@@ -517,7 +516,8 @@ Graph<captype, tcaptype, flowtype>::Graph(int node_num_max, int edge_num_max, vo
 
   nodes = (node*) malloc(node_num_max*sizeof(node));
   arcs = (arc*) malloc(2*edge_num_max*sizeof(arc));
-  if (!nodes || !arcs) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
+  char _error_message_[] = "Not enough memory!";
+  if (!nodes || !arcs) { if (error_function) (*error_function)(_error_message_); exit(1); }
 
   node_last = nodes;
   node_max = nodes + node_num_max;
@@ -566,7 +566,8 @@ void Graph<captype,tcaptype,flowtype>::reallocate_nodes(int num)
   node_num_max += node_num_max / 2;
   if (node_num_max < node_num + num) node_num_max = node_num + num;
   nodes = (node*) realloc(nodes_old, node_num_max*sizeof(node));
-  if (!nodes) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
+  char _error_message_[] = "Not enough memory!";
+  if (!nodes) { if (error_function) (*error_function)(_error_message_); exit(1); }
 
   node_last = nodes + node_num;
   node_max = nodes + node_num_max;
@@ -590,7 +591,8 @@ void Graph<captype,tcaptype,flowtype>::reallocate_arcs()
 
   arc_num_max += arc_num_max / 2; if (arc_num_max & 1) arc_num_max ++;
   arcs = (arc*) realloc(arcs_old, arc_num_max*sizeof(arc));
-  if (!arcs) { if (error_function) (*error_function)("Not enough memory!"); exit(1); }
+  char _error_message_[] = "Not enough memory!";
+  if (!arcs) { if (error_function) (*error_function)(_error_message_); exit(1); }
 
   arc_last = arcs + arc_num;
   arc_max = arcs + arc_num_max;
@@ -1091,8 +1093,10 @@ flowtype Graph<captype,tcaptype,flowtype>::maxflow(bool reuse_trees, Block<node_
 	}
 
   changed_list = _changed_list;
-  if (maxflow_iteration == 0 && reuse_trees) { if (error_function) (*error_function)("reuse_trees cannot be used in the first call to maxflow()!"); exit(1); }
-  if (changed_list && !reuse_trees) { if (error_function) (*error_function)("changed_list cannot be used without reuse_trees!"); exit(1); }
+  char _error_message_[] = "reuse_trees cannot be used in the first call to maxflow()!";
+  if (maxflow_iteration == 0 && reuse_trees) { if (error_function) (*error_function)(_error_message_); exit(1); }
+  char _error_message_1[] = "changed_list cannot be used without reuse_trees!";
+  if (changed_list && !reuse_trees) { if (error_function) (*error_function)(_error_message_1); exit(1); }
 
   if (reuse_trees) maxflow_reuse_trees_init();
   else             maxflow_init();
