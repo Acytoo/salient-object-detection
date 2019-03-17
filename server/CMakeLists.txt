@@ -8,6 +8,9 @@ add_library(
   src/basic/segment_graph.h
   src/basic/segment_image.h
   src/basic/segment_image.cc
+  src/basic/ytplatform.h
+  src/basic/file_linux.h
+  src/basic/file_win.h
   )
 
 add_library(

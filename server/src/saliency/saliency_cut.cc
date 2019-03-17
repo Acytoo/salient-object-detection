@@ -12,7 +12,7 @@
 #include <saliency/some_definition.h>
 
 #include <basic/image_operations.h>
-// #include <stdio.h>
+#include <basic/ytplatform.h>
 
 
 using namespace std;
@@ -74,7 +74,6 @@ saliencycut::SaliencyCut::~SaliencyCut(void) {
 int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
                                                string& result_rc_path,
                                                string& result_rcc_path) {
-
   int end_pos = img_path.rfind(".");
   result_rc_path = img_path.substr(0, end_pos) + "_RC.png"; // Region contrast
   result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png"; // Region contrast cut
@@ -92,7 +91,7 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
   Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
   // imshow("sal", sal);
   // waitKey(0);
-  cout << "M" << endl << endl << endl << sal << endl;
+  // cout << "M" << endl << endl << endl << sal << endl;
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_PNG_COMPRESSION);
   compression_params.push_back(9);
@@ -110,14 +109,67 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
   }
   if (!cutMat.empty()) {
     imwrite(result_rcc_path, cutMat);
-    cout << "M" << endl << cutMat << endl;
+    // cout << "M" << endl << cutMat << endl;
   }
   else
-    cout << "EEEOR! when save rcc" << endl;
+    cout << "EEEOR! While saving rcc" << endl;
 
   // finish region based saliency region detection
 
   return 0;
+}
+
+
+int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
+
+  int image_amount = -1;
+  vector<string> image_names;
+  image_names.reserve(100);   // reserve 100 file for the moment
+  image_amount = ytfile::get_file_names(root_dir_path, image_names);
+
+  // Then create folder, so the file_names won't contain result folder.
+  string saliency_dir_path = root_dir_path+ "/" + "cut_result";
+  if (ytfile::file_exist(saliency_dir_path)) {
+    if (!ytfile::is_dir(saliency_dir_path)) {
+      cout << "Please rename your file 'cut_result'" << endl;
+      return -1;
+    }
+  }
+  else {
+    ytfile::mk_dir(saliency_dir_path);
+  }
+  // Finish make directory; Start cutting
+#pragma omp parallel for
+  for (int i = 0; i < image_amount; ++i){
+    //string name = names[i] + ext;
+    // image_names[i];
+    //printf("Processing %d/%dth image: %-70s\r", i, imgNum, _S(name));
+    Mat img3f = imread(root_dir_path+ "/" + image_names[i]);
+    CV_Assert_(img3f.data != NULL, ("Can't load image \n"));
+    img3f.convertTo(img3f, CV_32FC3, 1.0/255);
+    //sal = CmSaliencyRC::GetRC(img3f);
+    Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
+    //imwrite(saliency_dir_path + "/" + image_names[i], sal*255);
+    // Finidh First Stage
+
+    Mat cutMat;
+    float t = 0.9f;
+    int maxIt = 4;
+    GaussianBlur(sal, sal, Size(9, 9), 0);
+    normalize(sal, sal, 0, 1, NORM_MINMAX);
+    while (cutMat.empty() && maxIt--){
+      cutMat = saliencycut::SaliencyCut::CutObjs(img3f, sal, 0.1f, t);
+      t -= 0.2f;
+    }
+    if (!cutMat.empty())
+      imwrite(saliency_dir_path + "/" + image_names[i], cutMat);
+    //imwrite(salDir + names[i] + "_RCC.png", cutMat);
+    else
+      cout << "EEEOR! While saving rcc" << endl;
+    //printf("Image(.jpg): %s", _S(names[i] + "\n"));
+  }
+
+  return image_amount;
 }
 
 

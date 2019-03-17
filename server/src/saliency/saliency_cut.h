@@ -24,6 +24,8 @@ namespace saliencycut {
     static int ProcessSingleImg(const std::string& img_path,
                                 std::string& result_rc_path,
                                 std::string& result_rcc_path);
+    static int ProcessImages(const std::string& root_dir_path);
+
     static void ShowImageInfo(const cv::Mat& img);
 
     // Refer initialize for parameters
