@@ -5,9 +5,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include "omp.h"
 
 #include <saliency/saliency_region_contrast.h>
-
 #include <cluster/gaussian_mixture_models.h>
 #include <saliency/some_definition.h>
 
@@ -139,18 +139,21 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
     ytfile::mk_dir(saliency_dir_path);
   }
   // Finish make directory; Start cutting
+
 #pragma omp parallel for
   for (int i = 0; i < image_amount; ++i){
-    //string name = names[i] + ext;
-    // image_names[i];
-    //printf("Processing %d/%dth image: %-70s\r", i, imgNum, _S(name));
-    Mat img3f = imread(root_dir_path+ "/" + image_names[i]);
+    string img_path = image_names[i];
+    int end_pos = img_path.rfind(".");
+    string result_rc_path = img_path.substr(0, end_pos) + "_RC.png"; // Region contrast
+    string result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png"; // Region contrast cut
+    printf("OpenMP Test, 线程编号为: %d\n", omp_get_thread_num());
+
+    Mat img3f = imread(root_dir_path+ "/" + img_path);
     CV_Assert_(img3f.data != NULL, ("Can't load image \n"));
     img3f.convertTo(img3f, CV_32FC3, 1.0/255);
-    //sal = CmSaliencyRC::GetRC(img3f);
     Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
-    //imwrite(saliency_dir_path + "/" + image_names[i], sal*255);
-    // Finidh First Stage
+    //imwrite(saliency_dir_path + "/" + result_rc_path, sal*255);
+    // Finish First Stage
 
     Mat cutMat;
     float t = 0.9f;
@@ -162,13 +165,10 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
       t -= 0.2f;
     }
     if (!cutMat.empty())
-      imwrite(saliency_dir_path + "/" + image_names[i], cutMat);
-    //imwrite(salDir + names[i] + "_RCC.png", cutMat);
+      imwrite(saliency_dir_path + "/" + result_rcc_path, cutMat);
     else
       cout << "EEEOR! While saving rcc" << endl;
-    //printf("Image(.jpg): %s", _S(names[i] + "\n"));
   }
-
   return image_amount;
 }
 

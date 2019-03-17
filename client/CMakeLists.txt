@@ -9,9 +9,15 @@ set(CMAKE_AUTOUIC ON)
 add_library(
   simple_gui STATIC
   simple_gui/main.cc
-  simple_gui/mainwindow.h
-  simple_gui/mainwindow.cc
-  simple_gui/mainwindow.ui
+  simple_gui/startwindow.h
+  simple_gui/startwindow.cc
+  simple_gui/startwindow.ui
+  simple_gui/process_single_page.h
+  simple_gui/process_single_page.cc
+  simple_gui/process_single_page.ui
+  simple_gui/process_multiple_page.h
+  simple_gui/process_multiple_page.cc
+  simple_gui/process_multiple_page.ui
   )
 
 target_link_libraries (simple_gui Qt5::Widgets basic saliency)
