@@ -8,7 +8,7 @@ FATAL: In-source builds are not allowed.
 endif()
 
 cmake_minimum_required(VERSION 3.13)
-project(salient_region_detection VERSION 0.1.3)
+project(salient_region_detection VERSION 0.2.2)
 
 
 if(UNIX AND NOT APPLE)

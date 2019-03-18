@@ -125,7 +125,8 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
   int image_amount = -1;
   vector<string> image_names;
   image_names.reserve(100);   // reserve 100 file for the moment
-  image_amount = ytfile::get_file_names(root_dir_path, image_names);
+  ytfile::get_file_names(root_dir_path, image_names);
+  image_amount = image_names.size();
 
   // Then create folder, so the file_names won't contain result folder.
   string saliency_dir_path = root_dir_path+ "/" + "cut_result";
@@ -146,7 +147,7 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
     int end_pos = img_path.rfind(".");
     string result_rc_path = img_path.substr(0, end_pos) + "_RC.png"; // Region contrast
     string result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png"; // Region contrast cut
-    printf("OpenMP Test, 线程编号为: %d\n", omp_get_thread_num());
+    printf("OpenMP Test, thread index: %d\n", omp_get_thread_num());
 
     Mat img3f = imread(root_dir_path+ "/" + img_path);
     CV_Assert_(img3f.data != NULL, ("Can't load image \n"));

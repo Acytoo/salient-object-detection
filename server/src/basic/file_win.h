@@ -13,8 +13,8 @@ namespace ytfile {
   bool is_dir(const std::string& path);
   int mk_dir(const std::string& dir_name);
   bool file_exist(const std::string& file_path);
-  int get_file_names(const std::string path,
-                     std::vector<std::string>& files);
+  void get_file_names(const std::string path,
+                      std::vector<std::string>& files);
 }
 
 
@@ -29,29 +29,22 @@ inline int ytfile::mk_dir(const std::string& dir_name) {
 }
 
 inline bool ytfile::file_exist(const std::string &file_path) {
-  return _access(file_path.c_str(), F_OK) == 0;
+  return _access(file_path.c_str(), 0) == 0;
 }
 
-int ytfile::get_file_names(const std::string folder,
-                           std::vector<std::string>& files) {
-  long hFile = 0;
+void ytfile::get_file_names(const std::string folder,
+                            std::vector<std::string>& files) {
+  intptr_t hFile = 0;  // for x64
   struct _finddata_t fileinfo;
   string p;
-  if((hFile = _findfirst(p.assign(path).append("\\*").c_str(),&fileinfo)) !=  -1) {
+  if((hFile = _findfirst(p.assign(folder).append("\\*").c_str(), &fileinfo)) !=  -1)
     do {
-      if((fileinfo.attrib &  _A_SUBDIR)) {
-        if(strcmp(fileinfo.name,".") != 0  &&  strcmp(fileinfo.name,"..") != 0) {
-          files.push_back(p.assign(path).append("\\").append(fileinfo.name) );
-          GetAllFiles( p.assign(path).append("\\").append(fileinfo.name), files );
-        }
-      }
-      else {
-        files.push_back(p.assign(path).append("\\").append(fileinfo.name) );
-      }
+      if(!(fileinfo.attrib & _A_SUBDIR)) // not a sub folder
+        files.push_back(fileinfo.name);
+
     } while (_findnext(hFile, &fileinfo)  == 0);
-    _findclose(hFile);
-  }
-  return files.size();
+
+  _findclose(hFile);
 }
 
 
