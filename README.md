@@ -18,7 +18,7 @@ Other versions of tools might work, feel free to test it yourself.
 
 #### Linux
 You need to have a C++ compiler (supporting C++11), Cmake, Opencv abd Qt5 installed. You also need to create a separate directory for build files to prevent source tree corruption. 
-Here are an example of using this project.
+Here is an example of using this project.
 ```
 $ git clone https://github.com/Acytoo/salient-object-detection.git
 $ cd salient-object-detection
