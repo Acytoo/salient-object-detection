@@ -8,7 +8,7 @@ FATAL: In-source builds are not allowed.
 endif()
 
 cmake_minimum_required(VERSION 3.13)
-project(salient_region_detection VERSION 0.2.2)
+project(salient_object_detection VERSION 0.2.2) # changed to 'object'
 
 
 if(UNIX AND NOT APPLE)
@@ -42,6 +42,6 @@ endif()
 add_subdirectory(server)
 add_subdirectory(client)
 
-set(TARGET_EXECUTABLE_GUI simple_gui.run)
-add_executable(${TARGET_EXECUTABLE_GUI} client/simple_gui/main.cc)
+set(TARGET_EXECUTABLE_GUI salient_object_detection)
+add_executable(${TARGET_EXECUTABLE_GUI} WIN32 client/simple_gui/main.cc) # remove 'WIN32' to show console
 target_link_libraries(${TARGET_EXECUTABLE_GUI} PRIVATE ${OpenCV_LIBS} saliency basic cluster simple_gui)

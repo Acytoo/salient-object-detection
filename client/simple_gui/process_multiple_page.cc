@@ -14,6 +14,7 @@ process_multiple_page::process_multiple_page(QWidget *parent) :
   ui(new Ui::process_multiple_page)
 {
   ui->setupUi(this);
+  move(120, 120);
 }
 
 process_multiple_page::~process_multiple_page()

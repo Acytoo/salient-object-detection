@@ -8,6 +8,7 @@ StartWindow::StartWindow(QWidget *parent) :
   ui(new Ui::StartWindow)
 {
   ui->setupUi(this);
+  move(90, 90);
 }
 
 StartWindow::~StartWindow()

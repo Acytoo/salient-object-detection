@@ -16,8 +16,24 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>1240</width>
+    <height>580</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1240</width>
+    <height>580</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Single</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../workSpace/salient-object-detection/resources/image/icon.png</normaloff>../../../workSpace/salient-object-detection/resources/image/icon.png</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QPushButton" name="button_back">

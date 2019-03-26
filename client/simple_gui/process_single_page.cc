@@ -14,6 +14,7 @@ process_single_page::process_single_page(QWidget *parent) :
   ui(new Ui::process_single_page)
 {
   ui->setupUi(this);
+  move(120, 120);
 }
 
 process_single_page::~process_single_page()
