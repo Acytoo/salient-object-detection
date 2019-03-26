@@ -33,3 +33,5 @@ Build steps are the same as Linux, except you have to set your path of OpenCV in
 After a successful build, open generated ```.sln``` file with Visual Studio, Release + X64 mode, compile and run.
 
 
+---
+![demo](https://raw.githubusercontent.com/acytoo/salient-object-detection/master/resources/image/screenshot0.png)

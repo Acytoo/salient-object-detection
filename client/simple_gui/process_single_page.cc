@@ -64,9 +64,9 @@ void process_single_page::on_button_process_clicked()
   QPixmap img_rcc(result_path_rcc.c_str());
   ui->label_img_rcc->setPixmap(img_rcc.scaled(400,400,Qt::KeepAspectRatio));
 
-  QString original_path = "Original image at " + QString::fromStdString(file_path);
-  QString result_rc_path = "RC saved at " + QString::fromStdString(result_path_rc);
-  QString result_rcc_path = "RCC saved at " + QString::fromStdString(result_path_rcc);
+  QString original_path = "Original image, " + QString::fromStdString(file_path);
+  QString result_rc_path = "RC, " + QString::fromStdString(result_path_rc);
+  QString result_rcc_path = "RCC, " + QString::fromStdString(result_path_rcc);
   ui->label_original_path->setText(original_path);
   ui->label_result_rc_path->setText(result_rc_path);
   ui->label_result_rcc_path->setText(result_rcc_path);

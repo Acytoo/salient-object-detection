@@ -52,7 +52,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>Go Back</string>
+     <string>BACK</string>
     </property>
    </widget>
    <widget class="QPushButton" name="button_browse">
