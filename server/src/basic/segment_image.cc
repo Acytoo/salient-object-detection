@@ -4,13 +4,15 @@
 #include <iostream>
 #include <map>
 #include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
+// #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/matx.hpp>
+
 
 using namespace std;
 using namespace cv;
 
-template<typename T> inline T sqr(T x) { return x * x; } // out of range risk for T = byte, ...
+// template<typename T> inline T sqr(T x) { return x * x; } // out of range risk for T = byte, ...
 
 // dissimilarity measure between pixels
 static inline float diff(const Mat& img3f, int x1, int y1, int x2, int y2) {
@@ -111,4 +113,31 @@ int SegmentImage(const Mat& _src3f, Mat& pImgInd,
 
   return idxNum;
 }
+
+
+int ShowLabel(const cv::Mat& label1i, cv::Mat& img_label3u,
+              int labelNum, bool showIdx) {
+  bool useRandom = labelNum > 0;
+  labelNum = useRandom ? labelNum : COLOR_NU_NO_GRAY;
+  vector<Vec3b> colors(labelNum);
+  if (useRandom)
+    for (size_t i = 0; i < colors.size(); i++)
+      colors[i] = RandomColor();
+  else
+    for (size_t i = 0; i < colors.size(); i++)
+      colors[i] = gColors[i];
+  img_label3u = Mat::zeros(label1i.size(), CV_8UC3);
+  for (int y = 0; y < label1i.rows; y++)	{
+    Vec3b* showD = img_label3u.ptr<Vec3b>(y);
+    const int* label = label1i.ptr<int>(y);
+    for (int x = 0; x < label1i.cols; x++)
+      if (label[x] >= 0){
+        showD[x] = colors[label[x] % labelNum];
+        if (showIdx)
+          showD[x][2] = (byte)(label[x]);
+      }
+  }
+  return 0;
+}
+
 

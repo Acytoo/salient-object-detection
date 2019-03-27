@@ -27,9 +27,14 @@ target_include_directories(simple_gui PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/simple
 
 
 
-set(TARGET_EXECUTABLE test_no_gui.out)
+set(TARGET_EXECUTABLE test_saliency.out)
 
 add_executable(${TARGET_EXECUTABLE} run_no_gui.cc)
 
 target_link_libraries(${TARGET_EXECUTABLE} PRIVATE ${OpenCV_LIBS} saliency basic cluster)
 
+set(TARGET_EXECUTABLE test_segment.out)
+
+add_executable(${TARGET_EXECUTABLE} test_segment.cc)
+
+target_link_libraries(${TARGET_EXECUTABLE} PRIVATE ${OpenCV_LIBS} saliency basic cluster)
