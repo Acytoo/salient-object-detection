@@ -26,7 +26,10 @@ $ mkdir build && cd build
 $ cmake ..
 $ cmake --build .
 ```
-If nothing goes wrong, you can run the application by ```$ ./salient_object_detection``` 
+If nothing goes wrong, you can run the application by 
+```
+$ ./salient_object_detectionW.out
+``` 
 
 #### Windows
 Build steps are the same as Linux, except you have to set your path of OpenCV in [CMakeLists](https://github.com/Acytoo/salient-object-detection/blob/master/CMakeLists.txt) first.
