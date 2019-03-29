@@ -2,6 +2,7 @@
 #define PROCESS_SINGLE_PAGE_H
 
 #include <QMainWindow>
+#include <iostream>
 
 namespace Ui {
   class process_single_page;
@@ -27,6 +28,8 @@ private slots:
 
 private:
   Ui::process_single_page *ui;
+  QString file_path_;
+  std::string image_path_;
 };
 
 #endif // PROCESS_SINGLE_PAGE_H

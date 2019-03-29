@@ -1,5 +1,5 @@
 add_library(
-  basic STATIC
+  basic STATIC  # SHARED
   src/basic/block.h
   src/basic/graph.h
   src/basic/disjoint_set.h
@@ -11,10 +11,12 @@ add_library(
   src/basic/ytplatform.h
   src/basic/file_linux.h
   src/basic/file_win.h
+  src/basic/basic_functions_demo.h
+  src/basic/basic_functions_demo.cc
   )
 
 add_library(
-  saliency STATIC
+  saliency STATIC  # SHARED
   src/saliency/saliency_cut.h
   src/saliency/saliency_cut.cc
   src/saliency/saliency_region_contrast.h
@@ -24,7 +26,7 @@ add_library(
   )
 
 add_library(
-  cluster STATIC
+  cluster STATIC  # SHARED
   src/cluster/gaussian_mixture_models.h
   src/cluster/gaussian_mixture_models.cc
   )

@@ -79,7 +79,7 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
   result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png"; // Region contrast cut
   //first error detection, permission and presense of the image
   //imread 2nd parameter 0: grayscale; 1: 3 channels; -1: as is(with alpha channel)
-  Mat img3f = imread(img_path, 1);
+  Mat img3f = imread(img_path, 1); // 3u now
   if (!img3f.data) {
     cout << "empty image" << endl;
     return -1;
@@ -96,7 +96,7 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
   compression_params.push_back(IMWRITE_PNG_COMPRESSION);
   compression_params.push_back(9);
   imwrite(result_rc_path, sal*255, compression_params);
-  cout << "finish stage 1" << endl;
+  // cout << "finish stage 1" << endl;
 
   Mat cutMat;
   float t = 0.9f;
@@ -175,17 +175,17 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
 
 
 void saliencycut::SaliencyCut::ShowImageInfo(const Mat& img) {
-  // +--------+----+----+----+----+------+------+------+------+
-  //   |        | C1 | C2 | C3 | C4 | C(5) | C(6) | C(7) | C(8) |
-  //   +--------+----+----+----+----+------+------+------+------+
-  //   | CV_8U  |  0 |  8 | 16 | 24 |   32 |   40 |   48 |   56 |
-  //   | CV_8S  |  1 |  9 | 17 | 25 |   33 |   41 |   49 |   57 |
-  //   | CV_16U |  2 | 10 | 18 | 26 |   34 |   42 |   50 |   58 |
-  //   | CV_16S |  3 | 11 | 19 | 27 |   35 |   43 |   51 |   59 |
-  //   | CV_32S |  4 | 12 | 20 | 28 |   36 |   44 |   52 |   60 |
-  //   | CV_32F |  5 | 13 | 21 | 29 |   37 |   45 |   53 |   61 |
-  //   | CV_64F |  6 | 14 | 22 | 30 |   38 |   46 |   54 |   62 |
-  //   +--------+----+----+----+----+------+------+------+------+
+    // +--------+----+----+----+----+------+------+------+------+
+    // |        | C1 | C2 | C3 | C4 | C(5) | C(6) | C(7) | C(8) |
+    // +--------+----+----+----+----+------+------+------+------+
+    // | CV_8U  |  0 |  8 | 16 | 24 |   32 |   40 |   48 |   56 |
+    // | CV_8S  |  1 |  9 | 17 | 25 |   33 |   41 |   49 |   57 |
+    // | CV_16U |  2 | 10 | 18 | 26 |   34 |   42 |   50 |   58 |
+    // | CV_16S |  3 | 11 | 19 | 27 |   35 |   43 |   51 |   59 |
+    // | CV_32S |  4 | 12 | 20 | 28 |   36 |   44 |   52 |   60 |
+    // | CV_32F |  5 | 13 | 21 | 29 |   37 |   45 |   53 |   61 |
+    // | CV_64F |  6 | 14 | 22 | 30 |   38 |   46 |   54 |   62 |
+    // +--------+----+----+----+----+------+------+------+------+
 
   cout << "M = "<< endl << " "  << img << endl << endl;
 

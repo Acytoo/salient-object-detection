@@ -15,7 +15,6 @@ class StartWindow : public QMainWindow
 public:
   explicit StartWindow(QWidget *parent = nullptr);
   ~StartWindow();
-  //void reshow();
 
 signals:
   void jump_single(int num);
@@ -23,13 +22,15 @@ signals:
 
 private slots:
   void on_button_single_clicked();
+
   void reshow();
 
   void on_button_multiple_clicked();
 
+  void on_button_dmeo_clicked();
+
 private:
   Ui::StartWindow *ui;
-  //process_single_page *single_page;
 };
 
 #endif // STARTWINDOW_H

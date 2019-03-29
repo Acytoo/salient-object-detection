@@ -2,7 +2,7 @@
 #include "ui_process_multiple_page.h"
 
 #include <thread>
-#include <string>
+#include <iostream>
 
 #include <qmessagebox.h>
 #include <qfiledialog.h>
@@ -13,12 +13,14 @@ process_multiple_page::process_multiple_page(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::process_multiple_page)
 {
+  std::cout << "constructor: multiple-page" << std::endl;
   ui->setupUi(this);
   move(120, 120);
 }
 
 process_multiple_page::~process_multiple_page()
 {
+  std::cout << "destructor: multiple-page" << std::endl;
   delete ui;
 }
 

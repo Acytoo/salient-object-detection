@@ -2,7 +2,7 @@
 #include "ui_process_single_page.h"
 
 #include <thread>
-#include <string>
+#include <iostream>
 
 #include <qmessagebox.h>
 #include <qfiledialog.h>
@@ -13,12 +13,15 @@ process_single_page::process_single_page(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::process_single_page)
 {
+  std::cout << "constructor: single-page" << std::endl;
   ui->setupUi(this);
-  move(120, 120);
+  move(150, 150);
 }
 
 process_single_page::~process_single_page()
 {
+
+  std::cout << "destructor: single-page" << std::endl;
   delete ui;
 }
 
@@ -31,13 +34,27 @@ void process_single_page::on_button_back_clicked()
 
 void process_single_page::on_button_browse_clicked()
 {
-  QString path;
-  path = QFileDialog::getOpenFileName(
-                                      this,
-                                      "Choose an image to process",
-                                      QString::null,
-                                      QString::null);
-  ui->edit_file_path->setText(path);
+  file_path_ = QFileDialog::getOpenFileName(
+                                            this,
+                                            "Choose an image to process",
+                                            QString::null,
+                                            QString::null);
+  if (file_path_.isEmpty()) {
+    QMessageBox::about(this, "Error", "Please choose an image!");
+    return;
+  }
+  std::string file_path =  file_path_.toUtf8().constData();
+  if(!(file_path.substr(file_path.length()-4,4) == ".jpg" || file_path.substr(file_path.length()-5,5) == ".jpeg"
+       || file_path.substr(file_path.length()-4,4) == ".png" || file_path.substr(file_path.length()-4,4) == ".bmp"
+       )) {
+    QMessageBox::about(this, "Error", "Only JPG, PNG or BMP files are supported!");
+    return;
+  }
+  image_path_ = file_path;
+  QPixmap img_ori(image_path_.c_str());
+  ui->label_img_ori->setPixmap(img_ori.scaled(400,400,Qt::KeepAspectRatio));
+  ui->edit_file_path->setText(file_path_);
+
 }
 
 void process_single_page::on_button_process_clicked()
@@ -46,17 +63,8 @@ void process_single_page::on_button_process_clicked()
     QMessageBox::about(this, "Error", "Please choose an image!");
     return;
   }
-  std::string file_path = ui->edit_file_path->text().toUtf8().constData();
-  if(!(file_path.substr(file_path.length()-4,4) == ".jpg" || file_path.substr(file_path.length()-5,5) == ".jpeg"
-       || file_path.substr(file_path.length()-4,4) == ".png" || file_path.substr(file_path.length()-4,4) == ".JPG"
-       )) {
-    QMessageBox::about(this, "Error", "Only JPG or PNG files are supported!");
-    return;
-  }
-  QPixmap img_ori(file_path.c_str());
-  ui->label_img_ori->setPixmap(img_ori.scaled(400,400,Qt::KeepAspectRatio));
   std::string result_path_rc, result_path_rcc;
-  std::thread img_process_thread(saliencycut::SaliencyCut::ProcessSingleImg, std::ref(file_path), std::ref(result_path_rc), std::ref(result_path_rcc));
+  std::thread img_process_thread(saliencycut::SaliencyCut::ProcessSingleImg, std::ref(image_path_), std::ref(result_path_rc), std::ref(result_path_rcc));
   img_process_thread.join();
 
   QPixmap img_rc(result_path_rc.c_str());
@@ -64,7 +72,7 @@ void process_single_page::on_button_process_clicked()
   QPixmap img_rcc(result_path_rcc.c_str());
   ui->label_img_rcc->setPixmap(img_rcc.scaled(400,400,Qt::KeepAspectRatio));
 
-  QString original_path = "Original image, " + QString::fromStdString(file_path);
+  QString original_path = "Original image, " + QString::fromStdString(image_path_);
   QString result_rc_path = "RC, " + QString::fromStdString(result_path_rc);
   QString result_rcc_path = "RCC, " + QString::fromStdString(result_path_rcc);
   ui->label_original_path->setText(original_path);

@@ -21,8 +21,8 @@ if(LINUX)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
 
 else()
-  message(STATUS ">>> Not Linux")
-  # basically is WINDOWS
+  message(STATUS ">>> Windows")
+  # WINDOWS ONLY
   # set your opencv dir first
   set(OpenCV_DIR  "E:/Software/opencv/build/x64/vc14/lib")
   set(CMAKE_PREFIX_PATH C:/Qt/Qt5.12.1/5.12.1/msvc2017_64/lib/cmake)
@@ -42,6 +42,6 @@ endif()
 add_subdirectory(server)
 add_subdirectory(client)
 
-set(TARGET_EXECUTABLE_GUI salient_object_detection)
-add_executable(${TARGET_EXECUTABLE_GUI} WIN32 client/simple_gui/main.cc) # remove 'WIN32' to show console
-target_link_libraries(${TARGET_EXECUTABLE_GUI} PRIVATE ${OpenCV_LIBS} saliency basic cluster simple_gui)
+set(TARGET_EXECUTABLE_GUI salient_object_detectionW.out)
+add_executable(${TARGET_EXECUTABLE_GUI} WIN32 client/salient_object_detectionW/main.cc) # remove 'WIN32' to show console
+target_link_libraries(${TARGET_EXECUTABLE_GUI} PRIVATE ${OpenCV_LIBS} saliency basic cluster salient_object_detectionW)
