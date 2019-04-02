@@ -19,7 +19,8 @@ int main() {
   //                                            result_rcc_path);
 
   string root_dir_path = "./test_img";
-  int number = saliencycut::SaliencyCut::ProcessImages(root_dir_path);
+  int amount = 0, time_cost = 0;
+  int number = saliencycut::SaliencyCut::ProcessImages(root_dir_path, amount, time_cost);
   cout << number << endl;
 
   // cout << result_rc_path << endl;

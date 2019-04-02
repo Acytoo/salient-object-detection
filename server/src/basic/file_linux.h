@@ -13,7 +13,7 @@ namespace ytfile {
   bool is_dir(const std::string& path);
   int mk_dir(const std::string& dir_name);
   bool file_exist(const std::string& file_path);
-  void get_file_names(const std::string folder_path,
+  int get_file_names(const std::string folder_path,
                       std::vector<std::string>& file_names);
 }
 
@@ -31,18 +31,24 @@ inline bool ytfile::file_exist(const std::string &file_path) {
   return access(file_path.c_str(), F_OK) == 0;
 }
 
-void ytfile::get_file_names(const std::string folder_path,
+// return value: 0: no error; -1: not a folder; -2: others
+int ytfile::get_file_names(const std::string folder_path,
                             std::vector<std::string>& file_names) {
+  struct stat s;
+  const char* dir_name = folder_path.c_str();
+  lstat(dir_name, &s);
+  if(!S_ISDIR(s.st_mode))
+    return -1;
   struct dirent *ptr;
   DIR *dir;
-  dir = opendir(folder_path.c_str());
+  dir = opendir(dir_name);
   while((ptr=readdir(dir))!=NULL) {
-    if(ptr->d_name[0] == '.') //跳过'.'和'..'两个目录
-      continue;
-    file_names.push_back(ptr->d_name);
+    if(ptr->d_type == 8)
+      file_names.push_back(ptr->d_name);
   }
+  return 0;
 }
-
+/*有些情况下，我们只要输出文件而不需要文件夹（目录），这时可以通过dirent结构体中的d_type进行过滤。d_type表示类型，4表示目录，8表示普通文件，0表示未知设备。*/
 
 
 #endif

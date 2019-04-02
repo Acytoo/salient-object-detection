@@ -18,7 +18,7 @@ endif()
 if(LINUX)
   # for Linux, BSD, Solaris, Minix
   message(STATUS ">>> Linux")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread")
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread") # c++11 oook
 
 else()
   message(STATUS ">>> Windows")

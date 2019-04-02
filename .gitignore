@@ -31,3 +31,6 @@ outline.*
 
 # ignore documents for now
 doc
+
+# ignore data
+data

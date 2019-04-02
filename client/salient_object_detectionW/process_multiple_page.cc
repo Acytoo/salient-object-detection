@@ -34,6 +34,7 @@ void process_multiple_page::on_button_back_clicked()
 
 void process_multiple_page::on_button_browse_clicked()
 {
+  ui->label_finish->setText("Press 'PROCESS' button to start\nPlease be patient");
   QString path = QFileDialog::getExistingDirectory(this, tr("Choose directory"), ".", QFileDialog::ReadOnly);
   ui->edit_root_path->setText(path);
 }
@@ -44,10 +45,11 @@ void process_multiple_page::on_button_process_clicked()
     QMessageBox::about(this, "Error", "Please choose a directory first!");
     return;
   }
-  ui->label_finish->setText("Started! Running now");
+  int amount= 0, time_cost = 0;
   std::string root_dir_path = ui->edit_root_path->text().toUtf8().constData();
-  std::thread img_process_thread(saliencycut::SaliencyCut::ProcessImages, std::ref(root_dir_path));
+  std::thread img_process_thread(saliencycut::SaliencyCut::ProcessImages, std::ref(root_dir_path), std::ref(amount), std::ref(time_cost));
   img_process_thread.join();
+  // string result_summary = "Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!";
 
-  ui->label_finish->setText("Finished!!!!");
+  ui->label_finish->setText(QString::fromStdString("Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!"));
 }

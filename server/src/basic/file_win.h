@@ -13,7 +13,7 @@ namespace ytfile {
   bool is_dir(const std::string& path);
   int mk_dir(const std::string& dir_name);
   bool file_exist(const std::string& file_path);
-  void get_file_names(const std::string path,
+  int get_file_names(const std::string path,
                       std::vector<std::string>& files);
 }
 
@@ -32,7 +32,7 @@ inline bool ytfile::file_exist(const std::string &file_path) {
   return _access(file_path.c_str(), 0) == 0;
 }
 
-void ytfile::get_file_names(const std::string folder,
+int ytfile::get_file_names(const std::string folder,
                             std::vector<std::string>& files) {
   intptr_t hFile = 0;  // for x64
   struct _finddata_t fileinfo;
@@ -45,6 +45,7 @@ void ytfile::get_file_names(const std::string folder,
     } while (_findnext(hFile, &fileinfo)  == 0);
 
   _findclose(hFile);
+  return 0;
 }
 
 

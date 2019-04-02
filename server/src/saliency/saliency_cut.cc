@@ -1,6 +1,7 @@
 #include "saliency_cut.h"
 
 #include <iostream>
+#include <ctime>
 #include <string>
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -74,9 +75,11 @@ saliencycut::SaliencyCut::~SaliencyCut(void) {
 int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
                                                string& result_rc_path,
                                                string& result_rcc_path) {
+  cout << "cpp: " << __cplusplus << endl;
   int end_pos = img_path.rfind(".");
-  result_rc_path = img_path.substr(0, end_pos) + "_RC.png"; // Region contrast
-  result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png"; // Region contrast cut
+  string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
+  result_rc_path = str_name + "_RC.png"; // Region contrast
+  result_rcc_path = str_name + "_RCC.png"; // Region contrast cut
   //first error detection, permission and presense of the image
   //imread 2nd parameter 0: grayscale; 1: 3 channels; -1: as is(with alpha channel)
   Mat img3f = imread(img_path, 1); // 3u now
@@ -120,8 +123,9 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
 }
 
 
-int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
+int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost) {
 
+  time_t start_time = std::time(0);
   int image_amount = -1;
   vector<string> image_names;
   image_names.reserve(100);   // reserve 100 file for the moment
@@ -129,7 +133,7 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
   image_amount = image_names.size();
 
   // Then create folder, so the file_names won't contain result folder.
-  string saliency_dir_path = root_dir_path+ "/" + "cut_result";
+  string saliency_dir_path = root_dir_path+ "/" + "cut_result_" + to_string(std::time(0));
   if (ytfile::file_exist(saliency_dir_path)) {
     if (!ytfile::is_dir(saliency_dir_path)) {
       cout << "Please rename your file 'cut_result'" << endl;
@@ -145,8 +149,9 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
   for (int i = 0; i < image_amount; ++i){
     string img_path = image_names[i];
     int end_pos = img_path.rfind(".");
-    string result_rc_path = img_path.substr(0, end_pos) + "_RC.png"; // Region contrast
-    string result_rcc_path = img_path.substr(0, end_pos) + "_RCC.png"; // Region contrast cut
+    string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
+    string result_rc_path = str_name + "_RC.png"; // Region contrast
+    string result_rcc_path = str_name + "_RCC.png"; // Region contrast cut
     printf("OpenMP Test, thread index: %d\n", omp_get_thread_num());
 
     Mat img3f = imread(root_dir_path+ "/" + img_path);
@@ -170,6 +175,8 @@ int saliencycut::SaliencyCut::ProcessImages(const std::string& root_dir_path) {
     else
       cout << "EEEOR! While saving rcc" << endl;
   }
+  amount = image_amount;
+  time_cost = (int) std::time(0) - start_time;
   return image_amount;
 }
 
