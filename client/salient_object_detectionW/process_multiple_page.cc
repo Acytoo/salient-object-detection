@@ -49,7 +49,7 @@ void process_multiple_page::on_button_process_clicked()
   std::string root_dir_path = ui->edit_root_path->text().toUtf8().constData();
   std::thread img_process_thread(saliencycut::SaliencyCut::ProcessImages, std::ref(root_dir_path), std::ref(amount), std::ref(time_cost));
   img_process_thread.join();
-  // string result_summary = "Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!";
+  string result_summary = "Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!";
 
   ui->label_finish->setText(QString::fromStdString("Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!"));
 }

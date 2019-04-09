@@ -154,6 +154,25 @@
           <set>Qt::AlignCenter</set>
         </property>
       </widget>
+      <widget class="QPushButton" name="button_gaussian_blur">
+        <property name="geometry">
+          <rect>
+            <x>10</x>
+            <y>300</y>
+            <width>90</width>
+            <height>26</height>
+          </rect>
+        </property>
+        <property name="font">
+          <font>
+            <family>Roboto</family>
+            <pointsize>7</pointsize>
+          </font>
+        </property>
+        <property name="text">
+          <string>GAUSSIAN_BLUR</string>
+        </property>
+      </widget>
     </widget>
   </widget>
   <resources/>

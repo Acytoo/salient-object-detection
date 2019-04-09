@@ -8,6 +8,7 @@
 #include <qfiledialog.h>
 
 #include <basic/basic_functions_demo.h>
+#include <basic/gaussian_blur.h>
 
 basic_image_operations::basic_image_operations(QWidget *parent) :
   QMainWindow(parent),
@@ -62,20 +63,13 @@ void basic_image_operations::on_button_segment_clicked()
     return;
   }
   std::string seg_path = "";
-  std::thread img_process_thread(basic_functions_demo::segment_demo, std::ref(image_path_), std::ref(seg_path));
+  std::thread img_process_thread(basic_functions_demo::SegmentDemo, std::ref(image_path_), std::ref(seg_path));
   img_process_thread.join();
   QPixmap seg_img(seg_path.c_str());
   ui->label_img_processed->setPixmap(seg_img.scaled(400,400,Qt::KeepAspectRatio));
   ui->label_function_name->setText("Segment Image");
 }
 
-// void basic_image_operations::on_button_resize_clicked()
-// {
-//   if (file_path_.isEmpty()) {
-//     QMessageBox::about(this, "Error", "Please choose an image!");
-//     return;
-//   }
-// }
 
 void basic_image_operations::on_button_bgr2lab_clicked()
 {
@@ -84,9 +78,19 @@ void basic_image_operations::on_button_bgr2lab_clicked()
     return;
   }
   std::string lab_path = "";
-  std::thread img_process_thread(basic_functions_demo::bgr2lab_demo, std::ref(image_path_), std::ref(lab_path));
+  std::thread img_process_thread(basic_functions_demo::Bgr2labDemo, std::ref(image_path_), std::ref(lab_path));
   img_process_thread.join();
   QPixmap seg_img(lab_path.c_str());
   ui->label_img_processed->setPixmap(seg_img.scaled(400,400,Qt::KeepAspectRatio));
   ui->label_function_name->setText("BGR2Lab");
+}
+
+void basic_image_operations::on_button_gaussian_blur_clicked()
+{
+  if (file_path_.isEmpty()) {
+    QMessageBox::about(this, "Error", "Please choose an image!");
+    return;
+  }
+  GaussianBlurDemo(image_path_);
+
 }

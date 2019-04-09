@@ -13,6 +13,7 @@ add_library(
   src/basic/file_win.h
   src/basic/basic_functions_demo.h
   src/basic/basic_functions_demo.cc
+  src/basic/gaussian_blur.h
   )
 
 add_library(

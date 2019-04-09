@@ -31,6 +31,8 @@ private slots:
 
   void on_button_bgr2lab_clicked();
 
+  void on_button_gaussian_blur_clicked();
+
 private:
   Ui::basic_image_operations *ui;
   QString file_path_;

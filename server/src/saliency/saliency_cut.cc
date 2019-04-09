@@ -6,7 +6,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-#include "omp.h"
+#include <omp.h>
 
 #include <saliency/saliency_region_contrast.h>
 #include <cluster/gaussian_mixture_models.h>
@@ -95,6 +95,7 @@ int saliencycut::SaliencyCut::ProcessSingleImg(const string& img_path,
   // imshow("sal", sal);
   // waitKey(0);
   // cout << "M" << endl << endl << endl << sal << endl;
+  // save region contrast image
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_PNG_COMPRESSION);
   compression_params.push_back(9);

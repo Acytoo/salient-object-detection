@@ -7,7 +7,7 @@
 
 #include <basic/segment_image.h>
 
-int basic_functions_demo::segment_demo(const string& ori_path, string& res_path) {
+int basic_functions_demo::SegmentDemo(const string& ori_path, string& res_path) {
   int end_pos = ori_path.rfind(".");
   res_path = ori_path.substr(0, end_pos) + "_seg.png";
   Mat img3u = imread(ori_path, 1);
@@ -29,19 +29,8 @@ int basic_functions_demo::segment_demo(const string& ori_path, string& res_path)
   return 0;
 }
 
-// int basic_functions_demo::resize_demo(const std::string &ori_path, std::string &res_path) {
-//   int end_pos = ori_path.rfind(".");
-//   res_path = ori_path.substr(0, end_pos) + "_seg.png";
-//   Mat img3u = imread(ori_path, 1);
-//   if (!img3u.data) {
-//     // empty
-//     return -1;
-//   }
-//   return 0;
 
-// }
-
-int basic_functions_demo::bgr2lab_demo(const std::string &ori_path, std::string &res_path) {
+int basic_functions_demo::Bgr2labDemo(const std::string &ori_path, std::string &res_path) {
   int end_pos = ori_path.rfind(".");
   res_path = ori_path.substr(0, end_pos) + "_lab.png";
   Mat img3u = imread(ori_path, 1);
