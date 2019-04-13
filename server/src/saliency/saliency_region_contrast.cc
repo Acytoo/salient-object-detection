@@ -93,7 +93,7 @@ int regioncontrast::RegionContrast::Quantize(const cv::Mat &img3f,
 
   // Build color pallet
   map<int, int> pallet;
-  for (int y = 0; y < rows; y++) {
+  for (int y = 0; y < rows; ++y) {
     const float* imgData = img3f.ptr<float>(y);
     int* idx = idx1i.ptr<int>(y);
     for (int x = 0; x < cols; x++, imgData += 3) {
@@ -151,7 +151,7 @@ int regioncontrast::RegionContrast::Quantize(const cv::Mat &img3f,
 
   Vec3f* color = (Vec3f*)(_color3f.data);
   int* colorNum = (int*)(_colorNum.data);
-  for (int y = 0; y < rows; y++) {
+  for (int y = 0; y < rows; ++y) {
     const Vec3f* imgData = img3f.ptr<Vec3f>(y);
     int* idx = idx1i.ptr<int>(y);
     for (int x = 0; x < cols; x++) {
@@ -175,7 +175,7 @@ void regioncontrast::RegionContrast::BuildRegions(const cv::Mat &regIdx1i,
   int rows = regIdx1i.rows, cols = regIdx1i.cols, regNum = (int)regs.size();
   double cx = cols/2.0, cy = rows / 2.0;
   Mat_<int> regColorFre1i = Mat_<int>::zeros(regNum, colorNum); // region color frequency
-  for (int y = 0; y < rows; y++) {
+  for (int y = 0; y < rows; ++y) {
     const int *regIdx = regIdx1i.ptr<int>(y);
     const int *colorIdx = colorIdx1i.ptr<int>(y);
     for (int x = 0; x < cols; x++, regIdx++, colorIdx++) {
@@ -247,14 +247,14 @@ Mat regioncontrast::RegionContrast::GetBorderReg(const cv::Mat &idx1i,
   vector<double> vX(regNum), vY(regNum);
   int w = idx1i.cols, h = idx1i.rows;{
     vector<double> mX(regNum), mY(regNum), n(regNum); // Mean value of x and y, pixel number of region
-    for (int y = 0; y < idx1i.rows; y++){
+    for (int y = 0; y < idx1i.rows; ++y){
       const int *idx = idx1i.ptr<int>(y);
       for (int x = 0; x < idx1i.cols; x++, idx++)
         mX[*idx] += x, mY[*idx] += y, n[*idx]++;
     }
     for (int i = 0; i < regNum; i++)
       mX[i] /= n[i], mY[i] /= n[i];
-    for (int y = 0; y < idx1i.rows; y++){
+    for (int y = 0; y < idx1i.rows; ++y){
       const int *idx = idx1i.ptr<int>(y);
       for (int x = 0; x < idx1i.cols; x++, idx++)
         vX[*idx] += abs(x - mX[*idx]), vY[*idx] += abs(y - mY[*idx]);
@@ -316,7 +316,7 @@ void regioncontrast::RegionContrast::SmoothByHist(const cv::Mat &img3f,
     double* colorSal = (double*)_colorSal.data;
     if (img3f.isContinuous() && sal1f.isContinuous())
       cols *= img3f.rows, rows = 1;
-    for (int y = 0; y < rows; y++){
+    for (int y = 0; y < rows; ++y){
       const int* idx = idx1i.ptr<int>(y);
       const float* initialS = sal1f.ptr<float>(y);
       for (int x = 0; x < cols; x++)
@@ -346,7 +346,7 @@ void regioncontrast::RegionContrast::SmoothByHist(const cv::Mat &img3f,
 
   // Reassign pixel saliency values
   float* colorSal = (float*)(_colorSal.data);
-  for (int y = 0; y < rows; y++){
+  for (int y = 0; y < rows; ++y){
     const int* idx = idx1i.ptr<int>(y);
     float* resSal = sal1f.ptr<float>(y);
     for (int x = 0; x < cols; x++)
@@ -362,7 +362,7 @@ void regioncontrast::RegionContrast::SmoothByRegion(cv::Mat &sal1f,
                                                     bool bNormalize) {
   vector<double> saliecy(regNum, 0);
   vector<int> counter(regNum, 0);
-  for (int y = 0; y < sal1f.rows; y++){
+  for (int y = 0; y < sal1f.rows; ++y){
     const int *idx = segIdx1i.ptr<int>(y);
     float *sal = sal1f.ptr<float>(y);
     for (int x = 0; x < sal1f.cols; x++){
@@ -377,7 +377,7 @@ void regioncontrast::RegionContrast::SmoothByRegion(cv::Mat &sal1f,
   if (bNormalize)
     normalize(rSal, rSal, 0, 1, NORM_MINMAX);
 
-  for (int y = 0; y < sal1f.rows; y++){
+  for (int y = 0; y < sal1f.rows; ++y){
     const int *idx = segIdx1i.ptr<int>(y);
     float *sal = sal1f.ptr<float>(y);
     for (int x = 0; x < sal1f.cols; x++)

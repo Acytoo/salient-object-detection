@@ -49,7 +49,7 @@ int SegmentImage(const Mat& _src3f, Mat& pImgInd,
   int num = 0;
   {
     for (int y = 0; y < height; y++) {
-      for (int x = 0; x < width; x++) {
+      for (int x = 0; x < width; ++x) {
         if (x < width-1) {
           edges[num].a = y * width + x;
           edges[num].b = y * width + (x+1);
@@ -100,7 +100,7 @@ int SegmentImage(const Mat& _src3f, Mat& pImgInd,
   int idxNum = 0;
   for (int y = 0; y < height; y++) {
     int *imgIdx = pImgInd.ptr<int>(y);
-    for (int x = 0; x < width; x++) {
+    for (int x = 0; x < width; ++x) {
       int comp = u->find(y * width + x);
       if (marker.find(comp) == marker.end())
         marker[comp] = idxNum++;
@@ -130,7 +130,7 @@ int ShowLabel(const cv::Mat& label1i, cv::Mat& img_label3u,
   for (int y = 0; y < label1i.rows; y++)	{
     Vec3b* showD = img_label3u.ptr<Vec3b>(y);
     const int* label = label1i.ptr<int>(y);
-    for (int x = 0; x < label1i.cols; x++)
+    for (int x = 0; x < label1i.cols; ++x)
       if (label[x] >= 0){
         showD[x] = colors[label[x] % labelNum];
         if (showIdx)

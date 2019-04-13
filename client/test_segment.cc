@@ -27,7 +27,21 @@ int main(int argc, char* argv[]) {
   Mat img_index, img3f, img_lab3f;
   img3u.convertTo(img3f, CV_32FC3, 1.0/255);
   cvtColor(img3f, img_lab3f, CV_BGR2Lab);
-  int region_num = SegmentImage(img_lab3f, img_index);
+
+  double sigma_gaussian = 0.5, c = 200;
+  int min_size =50;
+
+  // double sigma_gaussian = 1.0, c = 500;
+  // int min_size =1000;
+
+  int region_num = SegmentImage(img_lab3f, // lab
+                                img_index,
+                                sigma_gaussian,
+                                c,
+                                min_size);
+
+  imshow("3f", img3f);
+  imshow("lab", img_lab3f);
   Mat img_label3u;
   int err = ShowLabel(img_index, img_label3u, region_num);
   if (err) {
