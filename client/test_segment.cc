@@ -7,6 +7,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+// #include <basic/basic_functions_demo.h>
+
 using namespace std;
 using namespace cv;
 
@@ -48,6 +50,7 @@ int main(int argc, char* argv[]) {
     cout << "error\n";
     return -1;
   }
+  // basic_functions_demo::
   write_csv("img_index.csv", img_index);
   cout << img_index << endl << endl << endl;
   cout << "region number: " << region_num << endl;

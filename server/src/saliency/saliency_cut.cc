@@ -259,12 +259,8 @@ Mat saliencycut::SaliencyCut::CutObjs(const Mat& _img3f, const Mat& _sal1f,
     salCut.fitGMMs();
     int changed = 1000, times = 8;
     while (changed > 50 && times--) {
-      //salCut.showMedialResults("Medial results");
       changed = salCut.refineOnce();
-      //waitKey(1);
     }
-    //salCut.showMedialResults(format("It%d", j));
-    //waitKey(0);
     salCut.drawResult(fMask);
 
     fMask = imageoperations::ImageOperations::GetLargestSumNoneZeroRegion(fMask);

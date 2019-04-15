@@ -33,6 +33,8 @@ private slots:
 
   void on_button_gaussian_blur_clicked();
 
+  void on_button_quantize_clicked();
+
 private:
   Ui::basic_image_operations *ui;
   QString file_path_;

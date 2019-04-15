@@ -1,180 +1,193 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
-  <class>basic_image_operations</class>
-  <widget class="QMainWindow" name="basic_image_operations">
+ <class>basic_image_operations</class>
+ <widget class="QMainWindow" name="basic_image_operations">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1000</width>
+    <height>520</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1000</width>
+    <height>520</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Basic Image Operations</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="button_browse">
     <property name="geometry">
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>1000</width>
-        <height>520</height>
-      </rect>
+     <rect>
+      <x>10</x>
+      <y>70</y>
+      <width>90</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>BROWSE</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_back">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>10</y>
+      <width>1000</width>
+      <height>26</height>
+     </rect>
     </property>
     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-      </sizepolicy>
+     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>BACK</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_segment">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>160</y>
+      <width>90</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SEGMENT</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_bgr2lab">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>400</y>
+      <width>90</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>BGR2LAB</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_function_name">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>40</y>
+      <width>400</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Function name</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_img_ori">
+    <property name="geometry">
+     <rect>
+      <x>120</x>
+      <y>80</y>
+      <width>400</width>
+      <height>400</height>
+     </rect>
     </property>
     <property name="minimumSize">
-      <size>
-        <width>1000</width>
-        <height>520</height>
-      </size>
+     <size>
+      <width>400</width>
+      <height>400</height>
+     </size>
     </property>
-    <property name="windowTitle">
-      <string>Basic Image Operations</string>
+    <property name="text">
+     <string>Original</string>
     </property>
-    <widget class="QWidget" name="centralwidget">
-      <widget class="QPushButton" name="button_browse">
-        <property name="geometry">
-          <rect>
-            <x>10</x>
-            <y>70</y>
-            <width>90</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="text">
-          <string>BROWSE</string>
-        </property>
-      </widget>
-      <widget class="QPushButton" name="button_back">
-        <property name="geometry">
-          <rect>
-            <x>0</x>
-            <y>10</y>
-            <width>1000</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string>BACK</string>
-        </property>
-      </widget>
-      <widget class="QPushButton" name="button_segment">
-        <property name="geometry">
-          <rect>
-            <x>10</x>
-            <y>180</y>
-            <width>90</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="text">
-          <string>SEGMENT</string>
-        </property>
-      </widget>
-      <widget class="QPushButton" name="button_bgr2lab">
-        <property name="geometry">
-          <rect>
-            <x>10</x>
-            <y>400</y>
-            <width>90</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="text">
-          <string>BGR2LAB</string>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_function_name">
-        <property name="geometry">
-          <rect>
-            <x>540</x>
-            <y>40</y>
-            <width>400</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="text">
-          <string>Function name</string>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_img_ori">
-        <property name="geometry">
-          <rect>
-            <x>120</x>
-            <y>80</y>
-            <width>400</width>
-            <height>400</height>
-          </rect>
-        </property>
-        <property name="minimumSize">
-          <size>
-            <width>400</width>
-            <height>400</height>
-          </size>
-        </property>
-        <property name="text">
-          <string>Original</string>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_img_processed">
-        <property name="geometry">
-          <rect>
-            <x>540</x>
-            <y>80</y>
-            <width>400</width>
-            <height>400</height>
-          </rect>
-        </property>
-        <property name="text">
-          <string>Processed</string>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label">
-        <property name="geometry">
-          <rect>
-            <x>130</x>
-            <y>40</y>
-            <width>400</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="text">
-          <string>Original image</string>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QPushButton" name="button_gaussian_blur">
-        <property name="geometry">
-          <rect>
-            <x>10</x>
-            <y>300</y>
-            <width>90</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="font">
-          <font>
-            <family>Roboto</family>
-            <pointsize>7</pointsize>
-          </font>
-        </property>
-        <property name="text">
-          <string>GAUSSIAN_BLUR</string>
-        </property>
-      </widget>
-    </widget>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_img_processed">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>80</y>
+      <width>400</width>
+      <height>400</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Processed</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>130</x>
+      <y>40</y>
+      <width>400</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Original image</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_gaussian_blur">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>90</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Roboto</family>
+      <pointsize>7</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string>GAUSSIAN_BLUR</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="button_quantize">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>310</y>
+      <width>90</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>QUANTIZE</string>
+    </property>
+   </widget>
   </widget>
-  <resources/>
-  <connections/>
+ </widget>
+ <resources/>
+ <connections/>
 </ui>

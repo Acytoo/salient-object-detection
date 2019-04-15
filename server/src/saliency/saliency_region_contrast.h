@@ -40,6 +40,10 @@ namespace regioncontrast{
     static void SmoothByRegion(cv::Mat& sal1f, const cv::Mat& idx1i,
                                int regNum, bool bNormalize = true);
 
+    static int Quantize(const cv::Mat& img3f, cv::Mat& idx1i, cv::Mat& _color3f,
+                        cv::Mat& _colorNum, double ratio = 0.95,
+                        const int colorNums[3] = DefaultNums);
+
 
   private:
     static const int DefaultNums[3];
@@ -57,9 +61,8 @@ namespace regioncontrast{
     static void RegionContrastCore(const vector<Region> &regs,
                                    const cv::Mat& color3fv, cv::Mat& regSal1d,
                                    double sigmaDist);
-    static int Quantize(const cv::Mat& img3f, cv::Mat& idx1i, cv::Mat& _color3f,
-                        cv::Mat& _colorNum, double ratio = 0.95,
-                        const int colorNums[3] = DefaultNums);
+
+
 
     // Get border regions, which typically corresponds to background region
 	static Mat GetBorderReg(const cv::Mat &idx1i, int regNum, double ratio = 0.02,
