@@ -2,6 +2,8 @@
 
 A C++ implementation of paper [***Global Contrast based Salient Region detection. Ming-Ming Cheng, Niloy J. Mitra, Xiaolei Huang, Philip H. S. Torr, Shi-Min Hu. IEEE TPAMI, 2015.*** ](https://mmcheng.net/mftp/Papers/SaliencyTPAMI.pdf)
 
+[Original implementation](https://github.com/MingMingCheng/CmCode/) (a Visual Studio project) is for Windows, and I port it to Linux.
+
 ### Release
 [Linux and Windows](https://github.com/Acytoo/salient-object-detection/releases)
 
