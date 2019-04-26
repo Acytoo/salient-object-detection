@@ -87,6 +87,8 @@ namespace basic_functions_demo {
       return -1;
     }
 
+    imwrite(res_path, color3fv);
+
 
 
     return -3;
