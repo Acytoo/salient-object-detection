@@ -34,3 +34,6 @@ doc
 
 # ignore data
 data
+
+# vscode
+.vscode

@@ -56,13 +56,12 @@ namespace regioncontrast{
       Point2d centroid;
       Point2d ad2c; // Average distance to image center
 	};
+
     static void BuildRegions(const cv::Mat& regIdx1i, vector<Region>& regs,
                              const cv::Mat& colorIdx1i, int colorNum);
     static void RegionContrastCore(const vector<Region> &regs,
                                    const cv::Mat& color3fv, cv::Mat& regSal1d,
                                    double sigmaDist);
-
-
 
     // Get border regions, which typically corresponds to background region
 	static Mat GetBorderReg(const cv::Mat &idx1i, int regNum, double ratio = 0.02,
