@@ -80,13 +80,17 @@ int regioncontrast::RegionContrast::Quantize(const cv::Mat &img3f,
                                              cv::Mat &_colorNum,
                                              double ratio,
                                              const int clrNums[3]) {
-  float clrTmp[3] = {clrNums[0] - 0.0001f, clrNums[1] - 0.0001f, clrNums[2] - 0.0001f};
-  int w[3] = {clrNums[1] * clrNums[2], clrNums[2], 1};
+  float clrTmp[3] = {clrNums[0] - 0.0001f, clrNums[1] - 0.0001f, clrNums[2] - 0.0001f}; // 11.9999, 11.9999, 11.9999
+  int w[3] = {clrNums[1] * clrNums[2], clrNums[2], 1}; // 144, 12, 1
+  // cout << "color number and w" << endl;
+  // for (int i=0; i !=3; ++i) {
+  //   cout << clrTmp[i] << " " << w[i] << endl;
+  // }
 
-  CV_Assert(img3f.data != NULL);
+  CV_Assert(img3f.data != NULL); // works in opencv 4
   idx1i = Mat::zeros(img3f.size(), CV_32S);
   int rows = img3f.rows, cols = img3f.cols;
-  if (img3f.isContinuous() && idx1i.isContinuous()) {
+  if (img3f.isContinuous() && idx1i.isContinuous()) { // Called in 2nd times: might not continus
     cols *= rows;
     rows = 1;
   }
@@ -96,11 +100,11 @@ int regioncontrast::RegionContrast::Quantize(const cv::Mat &img3f,
   for (int y = 0; y < rows; ++y) {
     const float* imgData = img3f.ptr<float>(y);
     int* idx = idx1i.ptr<int>(y);
-    for (int x = 0; x < cols; x++, imgData += 3) {
+    for (int x = 0; x < cols; ++x, imgData += 3) { // (B*144 + G*12 + r*1) * 11.9999 for 1st quantize
       idx[x] = (int)(imgData[0]*clrTmp[0])*w[0] +
         (int)(imgData[1]*clrTmp[1])*w[1] +
-        (int)(imgData[2]*clrTmp[2]);
-      pallet[idx[x]] ++;
+        (int)(imgData[2]*clrTmp[2]); // To avoid (5,0,5) vs (0,5,5) ?
+      pallet[idx[x]]++;
     }
   }
 
@@ -110,15 +114,15 @@ int regioncontrast::RegionContrast::Quantize(const cv::Mat &img3f,
     int count = 0;
     vector<pair<int, int>> num; // (num, color) pairs in num
     num.reserve(pallet.size());
-    for (map<int, int>::iterator it = pallet.begin(); it != pallet.end(); it++)
+    for (map<int, int>::iterator it = pallet.begin(), stop = pallet.end(); it != stop; ++it)
       // (color, num) pairs in pallet
-      num.push_back(pair<int, int>(it->second, it->first));
+      num.push_back(pair<int, int>(it->second, it->first)); // Second: color occured times; fitst: color identifier
 
-    sort(num.begin(), num.end(), std::greater<pair<int, int>>());
+    sort(num.begin(), num.end(), std::greater<pair<int, int>>()); // sort default: sort(vect.begin(), vect.end(), less<int>());
 
     maxNum = (int)num.size();
     int maxDropNum = cvRound(rows * cols * (1-ratio));
-    for (int crnt = num[maxNum-1].first; crnt < maxDropNum && maxNum > 1; maxNum--)
+    for (int crnt = num[maxNum-1].first; crnt < maxDropNum && maxNum > 1; --maxNum)
       crnt += num[maxNum - 2].first;
     maxNum = min(maxNum, 256); // To avoid very rarely case
     if (maxNum <= 10)

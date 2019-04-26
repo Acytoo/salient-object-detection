@@ -65,7 +65,7 @@ namespace basic_functions_demo {
       return -1;
     }
 
-    Mat colorIdx1i, img3f, tmp, color3fv;
+    Mat colorIdx1i, img3f, tmp, color3fv, reg_sal1v;
     img3u.convertTo(img3f, CV_32FC3, 1.0/255);
     const int tempint[3] = {12,12,12};
     int quantize_num = regioncontrast::RegionContrast::Quantize(img3f, colorIdx1i, color3fv, tmp, 0.95, tempint);
@@ -73,25 +73,23 @@ namespace basic_functions_demo {
     if (quantize_num == 2){
       printf("quantize_num == 2, %d: %s\n", __LINE__, __FILE__);
       Mat sal;
-      cout << colorIdx1i.type() << " " << colorIdx1i.size() << colorIdx1i << endl;
+      cout << colorIdx1i.type() << " " << colorIdx1i.size() << endl;
       WriteCsv("colorIndex1i.csv", colorIdx1i);
       compare(colorIdx1i, 1, sal, CMP_EQ);
       sal.convertTo(sal, CV_32F, 1.0/255);
-      cout << sal.type() << " " << sal.size() << endl
-           << sal << endl;
+      cout << sal.type() << " " << sal.size() << endl;
       imwrite(res_path, sal);
       WriteCsv("sali.csv", sal);
-      return 0;
+      return -2;
     }
-    // if (quantize_num <= 1) {
-    //   printf("quantize number     1\n");
-    //   return -1;
-    // }
-    // cout << img3f.type() << " " << img3f.size() << endl
-    //      << color3fv.type() << " " << color3fv.size() << endl;
-    // imwrite(res_path, color3fv);
-    // cout << "Mat: 3fv" << color3fv << endl << "Mat: 3fv end" << endl;
-    return 0;
+    if (quantize_num <= 1) {
+      printf("quantize number     1\n");
+      return -1;
+    }
+
+
+
+    return -3;
   }
 
   // end namespace: basic_functions_demo
