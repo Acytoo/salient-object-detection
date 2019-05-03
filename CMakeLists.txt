@@ -8,7 +8,7 @@ FATAL: In-source builds are not allowed.
 endif()
 
 cmake_minimum_required(VERSION 3.13)
-project(salient_object_detection VERSION 0.2.7) # changed to 'object'
+project(salient_object_detection VERSION 0.3.0) 
 
 
 if(UNIX AND NOT APPLE)
@@ -31,15 +31,10 @@ endif()
 find_package(OpenCV REQUIRED)
 
 if (NOT OpenCV_FOUND)
-  message(FATAL_ERROR "FATAL: OpenCV 3.2.0 is needed")
+  message(FATAL_ERROR "FATAL: OpenCV is needed")
 endif()
 
-if (NOT "${OpenCV_VERSION}" STREQUAL "3.2.0")
-  message(FATAL_ERROR "FATAL: Only OpenCV 3.2.0 is supported")
-else()
-  include_directories(${OpenCV_INCLUDE_DIRS})
-endif()
-
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 find_package(OpenMP)
 if (OPENMP_FOUND)
