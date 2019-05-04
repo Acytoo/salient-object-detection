@@ -21,18 +21,18 @@ namespace regioncontrast {
                                         double seg_k,
                                         int seg_min_size,
                                         double seg_sigma) {
-    Mat img_lab3f, region_index1i;
+    Mat img_lab3f, region_idx1i;
     //cvtColor BGR2Lab currently not support 16bit img
     //see at https://docs.opencv.org/3.4/de/d25/imgproc_color_conversions.html#color_convert_rgb_lab Alec@2019.3.8
     cvtColor(img3f, img_lab3f, CV_BGR2Lab);
-    int region_num = SegmentImage(img_lab3f, region_index1i,
+    int region_num = SegmentImage(img_lab3f, region_idx1i,
                                   seg_sigma, seg_k, seg_min_size);
-    return GetRegionContrast(img3f, region_index1i, region_num, sigma_dist);
+    return GetRegionContrast(img3f, region_idx1i, region_num, sigma_dist);
   }
 
 
   Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f,
-                                        const cv::Mat& region_index1i,
+                                        const cv::Mat& region_idx1i,
                                         int reg_num,
                                         double sigma_dist) {
     Mat color_idx1i, reg_sal1v, tmp, color3fv;
@@ -49,23 +49,23 @@ namespace regioncontrast {
 
     cvtColor(color3fv, color3fv, CV_BGR2Lab);
     vector<Region> regs(reg_num);
-    BuildRegions(region_index1i, regs, color_idx1i, color3fv.cols);
+    BuildRegions(region_idx1i, regs, color_idx1i, color3fv.cols);
     RegionContrastCore(regs, color3fv, reg_sal1v, sigma_dist);
 
     Mat sal1f = Mat::zeros(img3f.size(), CV_32F);
     cv::normalize(reg_sal1v, reg_sal1v, 0, 1, NORM_MINMAX, CV_32F);
     float* reg_sal = (float*)reg_sal1v.data;
     for (int r = 0; r < img3f.rows; r++) {
-      const int* p_reg_idx = region_index1i.ptr<int>(r);
+      const int* p_reg_idx = region_idx1i.ptr<int>(r);
       float* sal = sal1f.ptr<float>(r);
       for (int c = 0; c < img3f.cols; c++)
         sal[c] = reg_sal[p_reg_idx[c]];
     }
 
-    Mat bdReg1u = GetBorderReg(region_index1i, reg_num, 0.02, 0.4);
+    Mat bdReg1u = GetBorderReg(region_idx1i, reg_num, 0.02, 0.4);
     sal1f.setTo(0, bdReg1u);
     SmoothByHist(img3f, sal1f, 0.1f);
-    SmoothByRegion(sal1f, region_index1i, reg_num);
+    SmoothByRegion(sal1f, region_idx1i, reg_num);
     sal1f.setTo(0, bdReg1u);
 
     GaussianBlur(sal1f, sal1f, Size(3, 3), 0);
