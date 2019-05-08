@@ -22,7 +22,7 @@ namespace saliencycut {
     :_fGMM(5), _bGMM(5), _w(img3f.cols), _h(img3f.rows), _lambda(50) {
     CV_Assert(img3f.data != NULL && img3f.type() == CV_32FC3);
     _imgBGR3f = img3f;
-    cvtColor(_imgBGR3f, _imgLab3f, CV_BGR2Lab);
+    cvtColor(_imgBGR3f, _imgLab3f, cv::COLOR_BGR2Lab);
     _trimap1i = Mat::zeros(_h, _w, CV_32S);
     _segVal1f = Mat::zeros(_h, _w, CV_32F);
     _graph = NULL;

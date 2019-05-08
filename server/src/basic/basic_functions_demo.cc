@@ -29,7 +29,7 @@ namespace basic_functions_demo {
     }
     Mat img_index, img3f, img_lab3f;
     img3u.convertTo(img3f, CV_32FC3, 1.0/255);
-    cvtColor(img3f, img_lab3f, CV_BGR2Lab);
+    cvtColor(img3f, img_lab3f, COLOR_BGR2Lab);
     int region_num = SegmentImage(img_lab3f, img_index);
     Mat img_label3u;
     int err = ShowLabel(img_index, img_label3u, region_num);
@@ -51,7 +51,7 @@ namespace basic_functions_demo {
       return -1;
     }
     Mat img_lab3u;
-    cvtColor(img3u, img_lab3u, CV_BGR2Lab);
+    cvtColor(img3u, img_lab3u, COLOR_BGR2Lab);
     imwrite(res_path, img_lab3u);
     return 0;
   }

@@ -24,8 +24,9 @@ namespace regioncontrast {
     Mat img_lab3f, region_idx1i;
     //cvtColor BGR2Lab currently not support 16bit img
     //see at https://docs.opencv.org/3.4/de/d25/imgproc_color_conversions.html#color_convert_rgb_lab Alec@2019.3.8
-    cvtColor(img3f, img_lab3f, CV_BGR2Lab);
-    int region_num = SegmentImage(img_lab3f, region_idx1i,
+
+    cvtColor(img3f, img_lab3f, COLOR_BGR2Lab);
+    int region_num = SegmentImage(img_lab3f, region_index1i,
                                   seg_sigma, seg_k, seg_min_size);
     return GetRegionContrast(img3f, region_idx1i, region_num, sigma_dist);
   }
@@ -47,7 +48,7 @@ namespace regioncontrast {
     if (quantize_num <= 1)
       return Mat::zeros(img3f.size(), CV_32F);
 
-    cvtColor(color3fv, color3fv, CV_BGR2Lab);
+    cvtColor(color3fv, color3fv, COLOR_BGR2Lab);
     vector<Region> regs(reg_num);
     BuildRegions(region_idx1i, regs, color_idx1i, color3fv.cols);
     RegionContrastCore(regs, color3fv, reg_sal1v, sigma_dist);
@@ -327,7 +328,7 @@ namespace regioncontrast {
     // Find similar colors & Smooth saliency value for color bins
     vector<vector<CostfIdx>> similar(binN); // Similar color: how similar and their index
     Vec3f* color = (Vec3f*)(binColor3f.data);
-    cvtColor(binColor3f, binColor3f, CV_BGR2Lab);
+    cvtColor(binColor3f, binColor3f, COLOR_BGR2Lab);
     for (int i = 0; i < binN; i++){
       vector<CostfIdx> &similari = similar[i];
       similari.push_back(make_pair(0.f, i));
@@ -336,7 +337,7 @@ namespace regioncontrast {
           similari.push_back(make_pair(vecDist<float, 3>(color[i], color[j]), j));
       sort(similari.begin(), similari.end());
     }
-    cvtColor(binColor3f, binColor3f, CV_Lab2BGR);
+    cvtColor(binColor3f, binColor3f, COLOR_Lab2BGR);
     //CmShow::HistBins(binColor3f, _colorSal, "BeforeSmooth", true);
     SmoothSaliency(colorNums1i, _colorSal, delta, similar);
     //CmShow::HistBins(binColor3f, _colorSal, "AfterSmooth", true);

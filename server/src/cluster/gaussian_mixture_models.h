@@ -195,7 +195,7 @@ template <int D> void CmGaussianFitter<D>::BuildGuassian(CmGaussian<D>& g, doubl
     // Compute determinant and inverse of covariance matrix
     Mat covar(D, D, CV_64FC1, g.covar);
     Mat inv(D, D, CV_64FC1, g.inv);
-    invert(covar, inv, CV_LU); // Compute determinant and inverse of covariance matrix
+    invert(covar, inv, 0); // invert(covar, inv, CV_LU); // Compute determinant and inverse of covariance matrix
     g.det = determinant(covar);
     g.w = count/totalCount; // Weight is percentage of this Gaussian
 
