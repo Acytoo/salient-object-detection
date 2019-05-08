@@ -207,16 +207,16 @@ template<class T> inline Vec<T, 3> operator / (const Vec<T, 3> &v, double s) { r
 #define SAFE_DELETE_ARRAY(p) { if (p) { delete[] (p);   (p)=NULL; } }
 #endif
 
-#ifndef CV_StsAssert
-#define CV_StsAssert 215
-#endif
+// #ifndef CV_StsAssert
+// #define CV_StsAssert -215 // CV::Error::Code::StsAssert in 4, assertion failed
+// #endif
 
-#ifndef CV_BGR2Lab
-#define CV_BGR2Lab cv::COLOR_BGR2Lab
-#endif
+// #ifndef CV_BGR2Lab
+// #define CV_BGR2Lab cv::COLOR_BGR2Lab
+// #endif
 
-#ifndef CV_Lab2BGR
-#define CV_Lab2BGR cv::COLOR_Lab2BGR
-#endif
+// #ifndef CV_Lab2BGR
+// #define CV_Lab2BGR cv::COLOR_Lab2BGR
+// #endif
 
 #endif
