@@ -21,18 +21,19 @@ namespace regioncontrast {
                                         double seg_k,
                                         int seg_min_size,
                                         double seg_sigma) {
-    Mat img_lab3f, region_index1i;
+    Mat img_lab3f, region_idx1i;
     //cvtColor BGR2Lab currently not support 16bit img
     //see at https://docs.opencv.org/3.4/de/d25/imgproc_color_conversions.html#color_convert_rgb_lab Alec@2019.3.8
+
     cvtColor(img3f, img_lab3f, COLOR_BGR2Lab);
     int region_num = SegmentImage(img_lab3f, region_index1i,
                                   seg_sigma, seg_k, seg_min_size);
-    return GetRegionContrast(img3f, region_index1i, region_num, sigma_dist);
+    return GetRegionContrast(img3f, region_idx1i, region_num, sigma_dist);
   }
 
 
   Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f,
-                                        const cv::Mat& region_index1i,
+                                        const cv::Mat& region_idx1i,
                                         int reg_num,
                                         double sigma_dist) {
     Mat color_idx1i, reg_sal1v, tmp, color3fv;
@@ -49,23 +50,23 @@ namespace regioncontrast {
 
     cvtColor(color3fv, color3fv, COLOR_BGR2Lab);
     vector<Region> regs(reg_num);
-    BuildRegions(region_index1i, regs, color_idx1i, color3fv.cols);
+    BuildRegions(region_idx1i, regs, color_idx1i, color3fv.cols);
     RegionContrastCore(regs, color3fv, reg_sal1v, sigma_dist);
 
     Mat sal1f = Mat::zeros(img3f.size(), CV_32F);
     cv::normalize(reg_sal1v, reg_sal1v, 0, 1, NORM_MINMAX, CV_32F);
     float* reg_sal = (float*)reg_sal1v.data;
     for (int r = 0; r < img3f.rows; r++) {
-      const int* p_reg_idx = region_index1i.ptr<int>(r);
+      const int* p_reg_idx = region_idx1i.ptr<int>(r);
       float* sal = sal1f.ptr<float>(r);
       for (int c = 0; c < img3f.cols; c++)
         sal[c] = reg_sal[p_reg_idx[c]];
     }
 
-    Mat bdReg1u = GetBorderReg(region_index1i, reg_num, 0.02, 0.4);
+    Mat bdReg1u = GetBorderReg(region_idx1i, reg_num, 0.02, 0.4);
     sal1f.setTo(0, bdReg1u);
     SmoothByHist(img3f, sal1f, 0.1f);
-    SmoothByRegion(sal1f, region_index1i, reg_num);
+    SmoothByRegion(sal1f, region_idx1i, reg_num);
     sal1f.setTo(0, bdReg1u);
 
     GaussianBlur(sal1f, sal1f, Size(3, 3), 0);
@@ -105,49 +106,48 @@ namespace regioncontrast {
 
     // Find significant colors
     int max_num = 0;
-    {
-      int count = 0;
-      // Sort the pallet by its second value, we need to use vector<pair<>>, since map(RBTree) is sorted by its first value
-      vector<pair<int, int>> num; // num{times, id}
-      num.reserve(pallet.size());
-      for (map<int, int>::iterator it = pallet.begin(), stop = pallet.end(); it != stop; ++it)
-        num.push_back(pair<int, int>(it->second, it->first)); // Second: color occured frequency; first: color identifier
-      sort(num.begin(), num.end(), std::greater<pair<int, int>>()); // sort default: sort(vect.begin(), vect.end(), less<int>());
+    int count = 0;
+    // Sort the pallet by its second value, we need to use vector<pair<>>, since map(RBTree) is sorted by its first value
+    vector<pair<int, int>> num; // num{times, id}
+    num.reserve(pallet.size());
+    for (map<int, int>::iterator it = pallet.begin(), stop = pallet.end(); it != stop; ++it)
+      num.push_back(pair<int, int>(it->second, it->first)); // Second: color occured frequency; first: color identifier
+    sort(num.begin(), num.end(), std::greater<pair<int, int>>()); // sort default: sort(vect.begin(), vect.end(), less<int>());
 
-      max_num = (int)num.size(); // max_num = num.size();
-      int max_drop_num = cvRound(rows * cols * (1-ratio));
-      for (int current_freq = num[max_num-1].first; current_freq < max_drop_num && 1 < max_num; --max_num)
-        current_freq += num[max_num - 2].first;
-      max_num = min(max_num, 256); // To avoid very rarely case
-      if (max_num <= 10)
-        max_num = min(10, (int)num.size());
+    max_num = (int)num.size(); // max_num = num.size();
+    int max_drop_num = cvRound(rows * cols * (1-ratio));
+    for (int current_freq = num[max_num-1].first; current_freq < max_drop_num && 1 < max_num; --max_num)
+      current_freq += num[max_num - 2].first;
+    max_num = min(max_num, 256); // To avoid very rarely case
+    if (max_num <= 10)
+      max_num = min(10, (int)num.size());
 
-      pallet.clear();
-      for (int i = 0; i < max_num; ++i)
-        pallet[num[i].second] = i;
-      // pallet{id:color_precedence}, size = max_num
+    pallet.clear();
+    for (int i = 0; i < max_num; ++i)
+      pallet[num[i].second] = i;
+    // pallet{id:color_precedence}, size = max_num
 
-      // high frequency color
-      vector<Vec3i> color3i(num.size());
-      for (unsigned int i = 0, stop = num.size(); i < stop; ++i) {
-        color3i[i][0] = num[i].second / w[0];
-        color3i[i][1] = num[i].second % w[0] / w[1];
-        color3i[i][2] = num[i].second % w[1];
-      }
-      // low frequency color: find the nearest high-freq color and replace it
-      for (unsigned int i = max_num, stop = num.size(); i < stop; ++i) {
-        int sim_idx = 0, sim_val = INT_MAX;
-        for (int j = 0; j < max_num; ++j) {
-          int d_ij = vecSqrDist<int, 3>(color3i[i], color3i[j]);
-          if (d_ij < sim_val)
-            sim_val = d_ij, sim_idx = j;
-        }
-        pallet[num[i].second] = pallet[num[sim_idx].second]; // pallet size: all color size
-      }
+    // high frequency color
+    vector<Vec3i> color3i(num.size());
+    for (unsigned int i = 0, stop = num.size(); i < stop; ++i) {
+      color3i[i][0] = num[i].second / w[0];
+      color3i[i][1] = num[i].second % w[0] / w[1];
+      color3i[i][2] = num[i].second % w[1];
     }
+    // low frequency color: find the nearest high-freq color and replace it
+    for (unsigned int i = max_num, stop = num.size(); i < stop; ++i) {
+      int sim_idx = 0, sim_val = INT_MAX;
+      for (int j = 0; j < max_num; ++j) {
+        int d_ij = vecSqrDist<int, 3>(color3i[i], color3i[j]);
+        if (d_ij < sim_val)
+          sim_val = d_ij, sim_idx = j;
+      }
+      pallet[num[i].second] = pallet[num[sim_idx].second]; // pallet size: all color size
+    }
+
     // max_num: left high frequency color's number
-    res_color3f = Mat::zeros(1, max_num, CV_32FC3); // color Mat(vector) if high-freq color
-    res_color_num = Mat::zeros(res_color3f.size(), CV_32S); // the number of each high-freq color
+    res_color3f = Mat::zeros(1, max_num, CV_32FC3); // color Mat(vector) of high-freq color
+    res_color_num = Mat::zeros(res_color3f.size(), CV_32S); // the number of occurences of each high-freq color
 
     Vec3f* p_color = (Vec3f*)(res_color3f.data);
     int* p_color_num = (int*)(res_color_num.data);
@@ -156,50 +156,49 @@ namespace regioncontrast {
       const Vec3f* p_ori_img = img3f.ptr<Vec3f>(y);
       int* p_color_idx = color_idx1i.ptr<int>(y);
       for (int x = 0; x < cols; ++x) {
-        p_color_idx[x] = pallet[p_color_idx[x]];
-        p_color[p_color_idx[x]] += p_ori_img[x];
+        p_color_idx[x] = pallet[p_color_idx[x]]; // 1i
+        p_color[p_color_idx[x]] += p_ori_img[x]; // 3f
         p_color_num[p_color_idx[x]] ++;
       }
     }
     for (int i = 0; i < res_color3f.cols; ++i)
       p_color[i] /= (float)p_color_num[i];
 
-    return res_color3f.cols;
-
+    return res_color3f.cols; // the number of high-freq color
   }
 
 
-  void RegionContrast::BuildRegions(const cv::Mat &region_index1i,
+  void RegionContrast::BuildRegions(const cv::Mat &region_idx1i,
                                     vector<Region> &regs,
                                     const cv::Mat &color_idx1i,
-                                    int colorNum) {
-    int rows = region_index1i.rows, cols = region_index1i.cols, regNum = (int)regs.size();
+                                    int color_num) {
+    int rows = region_idx1i.rows, cols = region_idx1i.cols, reg_num = (int)regs.size();
     double cx = cols/2.0, cy = rows / 2.0;
-    Mat_<int> regColorFre1i = Mat_<int>::zeros(regNum, colorNum); // region color frequency
+    Mat_<int> reg_color_freq1i  = Mat_<int>::zeros(reg_num, color_num); // region color frequency
     for (int y = 0; y < rows; ++y) {
-      const int *p_reg_idx = region_index1i.ptr<int>(y);
-      const int *colorIdx = color_idx1i.ptr<int>(y);
-      for (int x = 0; x < cols; x++, p_reg_idx++, colorIdx++) {
+      const int *p_reg_idx = region_idx1i.ptr<int>(y);
+      const int *p_color_idx = color_idx1i.ptr<int>(y);
+      for (int x = 0; x < cols; ++x, ++p_reg_idx, ++p_color_idx) {
         Region &reg = regs[*p_reg_idx];
-        reg.pixNum ++;
+        reg.pix_num++;
         reg.centroid.x += x;
         reg.centroid.y += y;
-        regColorFre1i(*p_reg_idx, *colorIdx)++;
+        reg_color_freq1i(*p_reg_idx, *p_color_idx)++;
         reg.ad2c += Point2d(abs(x - cx), abs(y - cy));
       }
     }
 
-    for (int i = 0; i < regNum; i++){
+    for (int i = 0; i < reg_num; ++i){
       Region &reg = regs[i];
-      reg.centroid.x /= reg.pixNum * cols;
-      reg.centroid.y /= reg.pixNum * rows;
-      reg.ad2c.x /= reg.pixNum * cols;
-      reg.ad2c.y /= reg.pixNum * rows;
-      int *regColorFre = regColorFre1i.ptr<int>(i);
-      for (int j = 0; j < colorNum; j++){
-        float fre = (float)regColorFre[j]/(float)reg.pixNum;
-        if (regColorFre[j] > EPS)
-          reg.freIdx.push_back(make_pair(fre, j));
+      reg.centroid.x /= reg.pix_num * cols;
+      reg.centroid.y /= reg.pix_num * rows;
+      reg.ad2c.x /= reg.pix_num * cols;
+      reg.ad2c.y /= reg.pix_num * rows;
+      int *p_reg_color_freq = reg_color_freq1i.ptr<int>(i);
+      for (int j = 0; j < color_num; ++j){
+        float fre = (float)p_reg_color_freq[j]/(float)reg.pix_num;
+        if (p_reg_color_freq[j] > EPS)
+          reg.fre_idx.push_back(make_pair(fre, j));
       }
     }
   }
@@ -226,13 +225,13 @@ namespace regioncontrast {
       for (int j = 0; j < regNum; j++){
         if(i<j) {
           double dd = 0;
-          const vector<CostfIdx> &c1 = regs[i].freIdx, &c2 = regs[j].freIdx;
+          const vector<CostfIdx> &c1 = regs[i].fre_idx, &c2 = regs[j].fre_idx;
           for (size_t m = 0; m < c1.size(); m++)
             for (size_t n = 0; n < c2.size(); n++)
               dd += cDistCache1f[c1[m].second][c2[n].second] * c1[m].first * c2[n].first;
           rDistCache1d[j][i] = rDistCache1d[i][j] = dd * exp(-pntSqrDist(rc, regs[j].centroid)/sigmaDist);
         }
-        regSal[i] += regs[j].pixNum * rDistCache1d[i][j];
+        regSal[i] += regs[j].pix_num * rDistCache1d[i][j];
       }
       regSal[i] *= exp(-9.0 * (sqr(regs[i].ad2c.x) + sqr(regs[i].ad2c.y)));
     }
@@ -249,14 +248,14 @@ namespace regioncontrast {
       vector<double> mX(regNum), mY(regNum), n(regNum); // Mean value of x and y, pixel number of region
       for (int y = 0; y < idx1i.rows; ++y){
         const int *idx = idx1i.ptr<int>(y);
-        for (int x = 0; x < idx1i.cols; x++, idx++)
+        for (int x = 0; x < idx1i.cols; x++, ++idx)
           mX[*idx] += x, mY[*idx] += y, n[*idx]++;
       }
       for (int i = 0; i < regNum; i++)
         mX[i] /= n[i], mY[i] /= n[i];
       for (int y = 0; y < idx1i.rows; ++y){
         const int *idx = idx1i.ptr<int>(y);
-        for (int x = 0; x < idx1i.cols; x++, idx++)
+        for (int x = 0; x < idx1i.cols; x++, ++idx)
           vX[*idx] += abs(x - mX[*idx]), vY[*idx] += abs(y - mY[*idx]);
       }
       for (int i = 0; i < regNum; i++)
@@ -285,10 +284,10 @@ namespace regioncontrast {
         regL[i] = lk/thr > 1 ? 255 : 0; //saturate_cast<byte>(255 * lk / thr);
       }
 
-      for (int r = 0; r < h; r++)	{
+      for (int r = 0; r < h; ++r)	{
         const int *idx = idx1i.ptr<int>(r);
         byte* maskData = bReg1u.ptr<byte>(r);
-        for (int c = 0; c < w; c++, idx++)
+        for (int c = 0; c < w; ++c, ++idx)
           maskData[c] = regL[*idx];
       }
     }

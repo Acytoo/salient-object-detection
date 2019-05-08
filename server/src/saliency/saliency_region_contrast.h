@@ -50,9 +50,9 @@ namespace regioncontrast{
 
     class Region{
     public:
-      Region() { pixNum = 0; ad2c = Point2d(0, 0);}
-      int pixNum;  // Number of pixels
-      vector<CostfIdx> freIdx;  // Frequency of each color and its index
+      Region() { pix_num = 0; ad2c = Point2d(0, 0);}
+      int pix_num;  // Number of pixels
+      vector<CostfIdx> fre_idx;  // Frequency of each color and its index
       Point2d centroid;
       Point2d ad2c; // Average distance to image center
 	};
