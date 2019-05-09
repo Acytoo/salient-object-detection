@@ -22,11 +22,8 @@ namespace regioncontrast {
                                         int seg_min_size,
                                         double seg_sigma) {
     Mat img_lab3f, region_idx1i;
-    //cvtColor BGR2Lab currently not support 16bit img
-    //see at https://docs.opencv.org/3.4/de/d25/imgproc_color_conversions.html#color_convert_rgb_lab Alec@2019.3.8
-
     cvtColor(img3f, img_lab3f, COLOR_BGR2Lab);
-    int region_num = SegmentImage(img_lab3f, region_index1i,
+    int region_num = SegmentImage(img_lab3f, region_idx1i,
                                   seg_sigma, seg_k, seg_min_size);
     return GetRegionContrast(img3f, region_idx1i, region_num, sigma_dist);
   }
@@ -36,7 +33,7 @@ namespace regioncontrast {
                                         const cv::Mat& region_idx1i,
                                         int reg_num,
                                         double sigma_dist) {
-    Mat color_idx1i, reg_sal1v, tmp, color3fv;
+    Mat color_idx1i, reg_sal1dv, tmp, color3fv;
     int quantize_num = Quantize(img3f, color_idx1i, color3fv, tmp);  // Color quantization
     // cout << "quantize_num " << quantize_num << endl;
     if (quantize_num == 2){
@@ -51,16 +48,16 @@ namespace regioncontrast {
     cvtColor(color3fv, color3fv, COLOR_BGR2Lab);
     vector<Region> regs(reg_num);
     BuildRegions(region_idx1i, regs, color_idx1i, color3fv.cols);
-    RegionContrastCore(regs, color3fv, reg_sal1v, sigma_dist);
+    RegionContrastCore(regs, color3fv, reg_sal1dv, sigma_dist);
 
     Mat sal1f = Mat::zeros(img3f.size(), CV_32F);
-    cv::normalize(reg_sal1v, reg_sal1v, 0, 1, NORM_MINMAX, CV_32F);
-    float* reg_sal = (float*)reg_sal1v.data;
-    for (int r = 0; r < img3f.rows; r++) {
+    cv::normalize(reg_sal1dv, reg_sal1dv, 0, 1, NORM_MINMAX, CV_32F);
+    float* p_reg_sal = (float*)reg_sal1dv.data;
+    for (int r = 0; r < img3f.rows; ++r) {
       const int* p_reg_idx = region_idx1i.ptr<int>(r);
-      float* sal = sal1f.ptr<float>(r);
-      for (int c = 0; c < img3f.cols; c++)
-        sal[c] = reg_sal[p_reg_idx[c]];
+      float* p_sal = sal1f.ptr<float>(r);
+      for (int c = 0; c < img3f.cols; ++c)
+        p_sal[c] = p_reg_sal[p_reg_idx[c]];
     }
 
     Mat bdReg1u = GetBorderReg(region_idx1i, reg_num, 0.02, 0.4);
@@ -74,7 +71,11 @@ namespace regioncontrast {
 
   }
 
-
+  // img3f: bgr image, 3 channel float, row x col
+  // color_idx1i: color index, same color has same index, 1 channel int, row x col
+  // res_color3f: colors after quantize, bgr color, 3 channel float, 1 x col
+  // res_color_num: number of each color, 1 channel int, 1 x col
+  // ratio: quantize ratio
   int RegionContrast::Quantize(const cv::Mat &img3f,
                                cv::Mat &color_idx1i,
                                cv::Mat &res_color3f,
@@ -172,32 +173,33 @@ namespace regioncontrast {
                                     vector<Region> &regs,
                                     const cv::Mat &color_idx1i,
                                     int color_num) {
-    int rows = region_idx1i.rows, cols = region_idx1i.cols, reg_num = (int)regs.size();
-    double cx = cols/2.0, cy = rows / 2.0;
+    int rows = region_idx1i.rows, cols = region_idx1i.cols, reg_num = regs.size();
+    double cx = cols / 2.0, cy = rows / 2.0;
     Mat_<int> reg_color_freq1i  = Mat_<int>::zeros(reg_num, color_num); // region color frequency
     for (int y = 0; y < rows; ++y) {
       const int *p_reg_idx = region_idx1i.ptr<int>(y);
       const int *p_color_idx = color_idx1i.ptr<int>(y);
       for (int x = 0; x < cols; ++x, ++p_reg_idx, ++p_color_idx) {
         Region &reg = regs[*p_reg_idx];
-        reg.pix_num++;
+        ++reg.pix_num;
         reg.centroid.x += x;
         reg.centroid.y += y;
-        reg_color_freq1i(*p_reg_idx, *p_color_idx)++;
+        ++reg_color_freq1i(*p_reg_idx, *p_color_idx);
         reg.ad2c += Point2d(abs(x - cx), abs(y - cy));
       }
     }
 
-    for (int i = 0; i < reg_num; ++i){
+    for (int i = 0; i < reg_num; ++i) {
       Region &reg = regs[i];
-      reg.centroid.x /= reg.pix_num * cols;
+      reg.centroid.x /= reg.pix_num * cols; // percentage
       reg.centroid.y /= reg.pix_num * rows;
       reg.ad2c.x /= reg.pix_num * cols;
       reg.ad2c.y /= reg.pix_num * rows;
       int *p_reg_color_freq = reg_color_freq1i.ptr<int>(i);
-      for (int j = 0; j < color_num; ++j){
+      for (int j = 0; j < color_num; ++j) {
         float fre = (float)p_reg_color_freq[j]/(float)reg.pix_num;
-        if (p_reg_color_freq[j] > EPS)
+        // if (p_reg_color_freq[j] > EPS)
+        if (fre > EPS) // fre > 0
           reg.fre_idx.push_back(make_pair(fre, j));
       }
     }
@@ -206,34 +208,33 @@ namespace regioncontrast {
 
   void RegionContrast::RegionContrastCore(const vector<Region> &regs,
                                           const cv::Mat &color3fv,
-                                          cv::Mat &regSal1d,
-                                          double sigmaDist) {
-    Mat_<float> cDistCache1f = Mat::zeros(color3fv.cols, color3fv.cols, CV_32F);
-    {
-      Vec3f* pColor = (Vec3f*)color3fv.data;
-      for(int i = 0; i < cDistCache1f.rows; i++)
-        for(int j= i+1; j < cDistCache1f.cols; j++)
-          cDistCache1f[i][j] = cDistCache1f[j][i] = vecDist<float, 3>(pColor[i], pColor[j]);
-    }
-
-    int regNum = (int)regs.size();
-    Mat_<double> rDistCache1d = Mat::zeros(regNum, regNum, CV_64F);
-    regSal1d = Mat::zeros(1, regNum, CV_64F);
-    double* regSal = (double*)regSal1d.data;
-    for (int i = 0; i < regNum; i++){
+                                          cv::Mat &reg_sal1dv,
+                                          double sigma_dist) {
+    // Color distance of each color in the image.
+    Mat_<float> color_dist_dict1f = Mat::zeros(color3fv.cols, color3fv.cols, CV_32F); // color_size x color_size, float
+    Vec3f* p_color = (Vec3f*)color3fv.data;
+    for(int i = 0; i < color_dist_dict1f.rows; ++i)
+      for(int j = i+1; j < color_dist_dict1f.cols; ++j)
+        color_dist_dict1f[i][j] = color_dist_dict1f[j][i] = vecDist<float, 3>(p_color[i], p_color[j]); // Lab color
+    // Region distance
+    int reg_num = (int)regs.size();
+    Mat_<double> region_dist_dict1d = Mat::zeros(reg_num, reg_num, CV_64F); // region_num x region_num, double
+    reg_sal1dv = Mat::zeros(1, reg_num, CV_64F); // 1 x region_num, double
+    double* p_reg_sal = (double*)reg_sal1dv.data;
+    for (int i = 0; i < reg_num; ++i) {
       const Point2d &rc = regs[i].centroid;
-      for (int j = 0; j < regNum; j++){
+      for (int j = 0; j < reg_num; ++j) {
         if(i<j) {
           double dd = 0;
           const vector<CostfIdx> &c1 = regs[i].fre_idx, &c2 = regs[j].fre_idx;
-          for (size_t m = 0; m < c1.size(); m++)
-            for (size_t n = 0; n < c2.size(); n++)
-              dd += cDistCache1f[c1[m].second][c2[n].second] * c1[m].first * c2[n].first;
-          rDistCache1d[j][i] = rDistCache1d[i][j] = dd * exp(-pntSqrDist(rc, regs[j].centroid)/sigmaDist);
+          for (size_t m = 0; m < c1.size(); ++m)
+            for (size_t n = 0; n < c2.size(); ++n)
+              dd += color_dist_dict1f[c1[m].second][c2[n].second] * c1[m].first * c2[n].first;
+          region_dist_dict1d[j][i] = region_dist_dict1d[i][j] = dd * exp(-pntSqrDist(rc, regs[j].centroid)/sigma_dist);
         }
-        regSal[i] += regs[j].pix_num * rDistCache1d[i][j];
+        p_reg_sal[i] += regs[j].pix_num * region_dist_dict1d[i][j];
       }
-      regSal[i] *= exp(-9.0 * (sqr(regs[i].ad2c.x) + sqr(regs[i].ad2c.y)));
+      p_reg_sal[i] *= exp(-9.0 * (sqr(regs[i].ad2c.x) + sqr(regs[i].ad2c.y)));
     }
 
   }

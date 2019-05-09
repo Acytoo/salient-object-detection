@@ -92,7 +92,7 @@ template<class T> inline double pntDist(const Point_<T> &p1, const Point_<T> &p2
 //template<class T> inline T vecSqrDist(const Vec<T, 3> &v1, const Vec<T, 3> &v2) {return sqr(v1[0] - v2[0])+sqr(v1[1] - v2[1])+sqr(v1[2] - v2[2]);} // out of range risk for T = byte, ...
 //template<class T> inline T vecDist(const Vec<T, 3> &v1, const Vec<T, 3> &v2) {return sqrt(vecSqrDist(v1, v2));}
 template<class T, int D> inline T vecSqrDist(const Vec<T, D> &v1, const Vec<T, D> &v2) {T s = 0; for (int i=0; i<D; i++) s += sqr(v1[i] - v2[i]); return s;} // out of range risk for T = byte, ...
-template<class T, int D> inline T    vecDist(const Vec<T, D> &v1, const Vec<T, D> &v2) { return sqrt(vecSqrDist(v1, v2)); } // out of range risk for T = byte, ...
+template<class T, int D> inline T vecDist(const Vec<T, D> &v1, const Vec<T, D> &v2) { return sqrt(vecSqrDist(v1, v2)); } // out of range risk for T = byte, ...
 
 //template<class T1, class T2> inline void operator /= (Vec<T1, 3> &v1, const T2 v2) { v1[0] = (T1)(v1[0]/v2); v1[1] = (T1)(v1[1]/v2); v1[2] = (T1)(v1[2]/v2); } // out of range risk for T = byte, ...
 
@@ -180,7 +180,7 @@ template<typename T> inline bool lessThan(const Vec<T, 2> &v1, const Vec<T, 2> &
 	if(!(expr)) {                                                       \
       string msg = cv::format args;                                     \
       printf("%s in %s:%d\n", msg.c_str(), __FILE__, __LINE__);         \
-      cv::error(cv::Exception(CV_StsAssert, msg, __FUNCTION__, __FILE__, __LINE__) ); } \
+      cv::error(cv::Exception(cv::Error::Code::StsAssert, msg, __FUNCTION__, __FILE__, __LINE__) ); } \
   }
 
 #define charPointers2StrVec(arrayOfCharPointer) (vecS(arrayOfCharPointer, std::end(arrayOfCharPointer)))

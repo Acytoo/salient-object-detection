@@ -19,7 +19,7 @@ namespace regioncontrast{
   public:
     // Get region contrast by Mat
     // inline function
-    // default: sgima_distance: 0.4, segK: 50, seg_min_size: 200, seg_segma: 0.5
+    // default: sgima_distance: 0.4, segK: 50, seg_min_size: 200, seg_sigma: 0.5
     static cv::Mat GetRegionContrast(const cv::Mat& img3f){
       return GetRegionContrast(img3f, 0.4, 50, 200, 0.5);
     }
@@ -48,7 +48,7 @@ namespace regioncontrast{
   private:
     static const int DefaultNums[3];
 
-    class Region{
+    class Region {
     public:
       Region() { pix_num = 0; ad2c = Point2d(0, 0);}
       int pix_num;  // Number of pixels
@@ -57,8 +57,9 @@ namespace regioncontrast{
       Point2d ad2c; // Average distance to image center
 	};
 
-    static void BuildRegions(const cv::Mat& regIdx1i, vector<Region>& regs,
-                             const cv::Mat& colorIdx1i, int colorNum);
+    static void BuildRegions(const cv::Mat &region_idx1i, vector<Region> &regs,
+                             const cv::Mat &color_idx1i, int color_num);
+
     static void RegionContrastCore(const vector<Region> &regs,
                                    const cv::Mat& color3fv, cv::Mat& regSal1d,
                                    double sigmaDist);
