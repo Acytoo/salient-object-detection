@@ -13,6 +13,7 @@ A C++ implementation of paper [***Global Contrast based Salient Region detection
 ### Building from Scratch
 
 Have been tested on 
+* Arch Linux, OpenCv 4.1
 * Debian Testing, with g++ 8.3.0, OpenCV 3.2.0, Qt 5.11.3, OpenMP 4.5, CMake 3.13
 * Windows 10, with vs2019, OpenCV 3.2.0, Qt 5, CMake 3.14
 
