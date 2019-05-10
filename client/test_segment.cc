@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
   Mat img3u = imread(img_path, 1);
   Mat img_index, img3f, img_lab3f;
   img3u.convertTo(img3f, CV_32FC3, 1.0/255);
-  cvtColor(img3f, img_lab3f, CV_BGR2Lab);
+  cvtColor(img3f, img_lab3f, COLOR_BGR2Lab);
 
   double sigma_gaussian = 0.5, c = 200;
   int min_size =50;

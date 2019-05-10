@@ -28,7 +28,7 @@ typedef struct {
 } uni_elt;
 
 class universe {
-public:
+ public:
   universe(int elements);
   ~universe();
   int find(int x);
@@ -36,7 +36,7 @@ public:
   int size(int x) const { return elts[x].size; }
   int nu_sets() const { return num; }
 
-private:
+ private:
   uni_elt *elts;
   int num;
 };

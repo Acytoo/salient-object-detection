@@ -1,8 +1,0 @@
-#ifndef SERVER_SALIENCY_PRE_PROCESS_H_
-#define SERVER_SALIENCY_PRE_PROCESS_H_
-
-namespace preprocess {
-
-}
-
-#endif  // SERVER_SALIENCY_PRE_PROCESS_H_

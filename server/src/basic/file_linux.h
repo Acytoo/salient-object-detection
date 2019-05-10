@@ -10,11 +10,11 @@
 #include <dirent.h>
 
 namespace ytfile {
-  bool is_dir(const std::string& path);
-  int mk_dir(const std::string& dir_name);
-  bool file_exist(const std::string& file_path);
-  int get_file_names(const std::string folder_path,
-                      std::vector<std::string>& file_names);
+bool is_dir(const std::string& path);
+int mk_dir(const std::string& dir_name);
+bool file_exist(const std::string& file_path);
+int get_file_names(const std::string folder_path,
+                   std::vector<std::string>& file_names);
 }
 
 
@@ -33,7 +33,7 @@ inline bool ytfile::file_exist(const std::string &file_path) {
 
 // return value: 0: no error; -1: not a folder; -2: others
 int ytfile::get_file_names(const std::string folder_path,
-                            std::vector<std::string>& file_names) {
+                           std::vector<std::string>& file_names) {
   struct stat s;
   const char* dir_name = folder_path.c_str();
   lstat(dir_name, &s);

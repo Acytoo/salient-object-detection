@@ -1,4 +1,3 @@
-
 # Disable in-source builds to prevent source tree corruption.
 if(" ${CMAKE_SOURCE_DIR}" STREQUAL " ${CMAKE_BINARY_DIR}")
   message(FATAL_ERROR "
@@ -8,7 +7,7 @@ FATAL: In-source builds are not allowed.
 endif()
 
 cmake_minimum_required(VERSION 3.13)
-project(salient_object_detection VERSION 0.3.0) 
+project(salient_object_detection VERSION 0.9.2)
 
 
 if(UNIX AND NOT APPLE)
@@ -18,7 +17,7 @@ endif()
 if(LINUX)
   # for Linux, BSD, Solaris, Minix
   message(STATUS ">>> Linux")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread") # c++11 oook
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -O3") # c++11 oook
 
 else()
   message(STATUS ">>> Windows")
