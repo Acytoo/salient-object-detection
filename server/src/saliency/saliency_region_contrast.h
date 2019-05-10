@@ -6,9 +6,6 @@
 namespace regioncontrast{
 class RegionContrast{
  public:
-  // Get region contrast by Mat
-  // inline function
-  // default: sgima_distance: 0.4, segK: 50, seg_min_size: 200, seg_sigma: 0.5
   static cv::Mat GetRegionContrast(const cv::Mat& img3f);
 
   static void SmoothByHist(const cv::Mat& img3f, cv::Mat& sal1f, float delta);
@@ -16,10 +13,9 @@ class RegionContrast{
   static void SmoothByRegion(cv::Mat& sal1f, const cv::Mat& idx1i,
                              int regNum, bool bNormalize = true);
 
-  static int Quantize(const cv::Mat& img3f, cv::Mat& idx1i, cv::Mat& _color3f,
-                      cv::Mat& _colorNum, double ratio = 0.95,
-                      const int colorNums[3] = DefaultNums);
-
+  static int Quantize(const cv::Mat &img3f, cv::Mat &color_idx1i,
+                               cv::Mat &res_color3f,cv::Mat &res_color_num,
+                               double ratio = 0.95, const int clrNums[3] = DefaultNums);
 
  private:
   static const int DefaultNums[3];
@@ -37,11 +33,11 @@ class RegionContrast{
                            const cv::Mat &color_idx1i, int color_num);
 
   static void RegionContrastCore(const vector<Region> &regs,
-                                 const cv::Mat& color3fv, cv::Mat& regSal1d,
-                                 double sigmaDist);
+                                 const cv::Mat& color3fv, cv::Mat& reg_sal1dv,
+                                 double sigma_dist);
 
   // Get border regions, which typically corresponds to background region
-  static Mat GetBorderReg(const cv::Mat &idx1i, int regNum, double ratio = 0.02,
+  static Mat GetBorderReg(const cv::Mat &idx1i, int reg_num, double ratio = 0.02,
                           double thr = 0.3);
 
   static void SmoothSaliency(cv::Mat& sal1f, float delta,

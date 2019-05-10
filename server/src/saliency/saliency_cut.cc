@@ -3,6 +3,7 @@
 #include <iostream>
 #include <ctime>
 #include <string>
+
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -91,9 +92,6 @@ int SaliencyCut::ProcessSingleImg(const string& img_path,
 
 
   Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
-  // imshow("sal", sal);
-  // waitKey(0);
-  // cout << "M" << endl << endl << endl << sal << endl;
   // save region contrast image
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_PNG_COMPRESSION);
@@ -116,9 +114,7 @@ int SaliencyCut::ProcessSingleImg(const string& img_path,
   }
   else
     cout << "EEEOR! While saving rcc" << endl;
-
   // finish region based saliency region detection
-
   return 0;
 }
 
@@ -152,13 +148,13 @@ int SaliencyCut::ProcessImages(const std::string& root_dir_path, int& amount, in
     string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
     string result_rc_path = str_name + "_RC.png"; // Region contrast
     string result_rcc_path = str_name + "_RCC.png"; // Region contrast cut
-    printf("OpenMP Test, thread index: %d\n", omp_get_thread_num());
+    // printf("OpenMP Test, thread index: %d\n", omp_get_thread_num());
 
     Mat img3f = imread(root_dir_path+ "/" + img_path);
     CV_Assert_(img3f.data != NULL, ("Can't load image \n"));
     img3f.convertTo(img3f, CV_32FC3, 1.0/255);
     Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
-    //imwrite(saliency_dir_path + "/" + result_rc_path, sal*255);
+    imwrite(saliency_dir_path + "/" + result_rc_path, sal*255);
     // Finish First Stage
 
     Mat cutMat;

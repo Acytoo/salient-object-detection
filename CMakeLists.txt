@@ -7,7 +7,7 @@ FATAL: In-source builds are not allowed.
 endif()
 
 cmake_minimum_required(VERSION 3.13)
-project(salient_object_detection VERSION 0.3.0) 
+project(salient_object_detection VERSION 0.9.2)
 
 
 if(UNIX AND NOT APPLE)

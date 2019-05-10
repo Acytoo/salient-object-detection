@@ -1,14 +1,17 @@
-#include <saliency/saliency_region_contrast.h>
-#include <saliency/saliency_cut.h>
-#include <basic/block.h>
-#include <basic/graph.h>
-#include <basic/segment_image.h>
+#include "saliency_region_contrast.h"
 
 #include <iostream>
 #include <map>
 // #include <fstream>
 
 #include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+#include <saliency/saliency_cut.h>
+#include <basic/block.h>
+#include <basic/graph.h>
+#include <basic/segment_image.h>
 
 using namespace std;
 using namespace cv;
@@ -22,7 +25,6 @@ using namespace cv;
 // }
 
 namespace regioncontrast {
-
 const int RegionContrast::DefaultNums[3] = {12, 12, 12}; // slightly different
 
 Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
@@ -70,15 +72,25 @@ Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
       p_sal[c] = p_reg_sal[p_reg_idx[c]];
   }
   // return sal1f;
+  imshow("1 sal1f before everything", sal1f);
 
   Mat bdReg1u = GetBorderReg(region_idx1i, reg_num, 0.02, 0.4);
+  cout << bdReg1u.size() << endl;
+  // return bdReg1u;
+  imshow("2 border regiion", bdReg1u);
   // WriteCsv("bdReg1u.csv", bdReg1u);
   sal1f.setTo(0, bdReg1u);
+  imshow("3 after set to border", sal1f);
   SmoothByHist(img3f, sal1f, 0.1f);
+  imshow("4 hist smooth", sal1f);
   SmoothByRegion(sal1f, region_idx1i, reg_num);
+  imshow("5 region smooth", sal1f);
   sal1f.setTo(0, bdReg1u);
+  imshow("6 set to border again", sal1f);
 
   GaussianBlur(sal1f, sal1f, Size(3, 3), 0);
+  imshow("7 after gaussian blur", sal1f);
+  waitKey(0);
   return sal1f;
 
 }
@@ -249,6 +261,11 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
   }
 }
 
+// Get border regions, which typically corresponds to background region
+// region_idx1i: source image size, 1 channel int
+// reg_num: number of regions
+// ratio: default: 0.02
+// thr: default: 0.3
 Mat RegionContrast::GetBorderReg(const cv::Mat &region_idx1i,
                                  int reg_num, double ratio,
                                  double thr) {
@@ -286,7 +303,7 @@ Mat RegionContrast::GetBorderReg(const cv::Mat &region_idx1i,
         xbNum[region_idx1i.at<int>(pnt)]++, bPnts.push_back(pnt);
   }
 
-  Mat bReg1u(region_idx1i.size(), CV_8U);{  // likelihood map of border region
+  Mat bReg1u(region_idx1i.size(), CV_8U); {  // likelihood map of border region
     double xR = 1.0/(4*hGap), yR = 1.0/(4*wGap);
     vector<byte> regL(reg_num); // likelihood of each region belongs to border background
     for (int i = 0; i < reg_num; ++i) {
