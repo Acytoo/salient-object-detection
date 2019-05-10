@@ -99,7 +99,7 @@
 
 template <class Type> class Block
 {
-public:
+ public:
   /* Constructor. Arguments are the block size and
      (optionally) the pointer to the function which
      will be called if allocation failed; the message
@@ -117,21 +117,21 @@ public:
     Type *t;
 
     if (!last || last->current + num > last->last)
+    {
+      if (last && last->next) last = last -> next;
+      else
       {
-        if (last && last->next) last = last -> next;
-        else
-          {
-            block *next = (block *) new char [sizeof(block) + (block_size-1)*sizeof(Type)];
-            char _error_message_[] = "Not enough memory!";
-            if (!next) { if (error_function) (*error_function)(_error_message_); exit(1); }
-            if (last) last -> next = next;
-            else first = next;
-            last = next;
-            last -> current = & ( last -> data[0] );
-            last -> last = last -> current + block_size;
-            last -> next = NULL;
-          }
+        block *next = (block *) new char [sizeof(block) + (block_size-1)*sizeof(Type)];
+        char _error_message_[] = "Not enough memory!";
+        if (!next) { if (error_function) (*error_function)(_error_message_); exit(1); }
+        if (last) last -> next = next;
+        else first = next;
+        last = next;
+        last -> current = & ( last -> data[0] );
+        last -> last = last -> current + block_size;
+        last -> next = NULL;
       }
+    }
 
     t = last -> current;
     last -> current += num;
@@ -142,10 +142,10 @@ public:
   Type *ScanFirst()
   {
     for (scan_current_block=first; scan_current_block; scan_current_block = scan_current_block->next)
-      {
-        scan_current_data = & ( scan_current_block -> data[0] );
-        if (scan_current_data < scan_current_block -> current) return scan_current_data ++;
-      }
+    {
+      scan_current_data = & ( scan_current_block -> data[0] );
+      if (scan_current_data < scan_current_block -> current) return scan_current_data ++;
+    }
     return NULL;
   }
 
@@ -155,11 +155,11 @@ public:
   Type *ScanNext()
   {
     while (scan_current_data >= scan_current_block -> current)
-      {
-        scan_current_block = scan_current_block -> next;
-        if (!scan_current_block) return NULL;
-        scan_current_data = & ( scan_current_block -> data[0] );
-      }
+    {
+      scan_current_block = scan_current_block -> next;
+      if (!scan_current_block) return NULL;
+      scan_current_data = & ( scan_current_block -> data[0] );
+    }
     return scan_current_data ++;
   }
 
@@ -169,16 +169,16 @@ public:
     block *b;
     if (!first) return;
     for (b=first; ; b=b->next)
-      {
-        b -> current = & ( b -> data[0] );
-        if (b == last) break;
-      }
+    {
+      b -> current = & ( b -> data[0] );
+      if (b == last) break;
+    }
     last = first;
   }
 
   /***********************************************************************/
 
-private:
+ private:
 
   typedef struct block_st
   {
@@ -203,7 +203,7 @@ private:
 
 template <class Type> class DBlock
 {
-public:
+ public:
   /* Constructor. Arguments are the block size and
      (optionally) the pointer to the function which
      will be called if allocation failed; the message
@@ -219,17 +219,17 @@ public:
     block_item *item;
 
     if (!first_free)
-      {
-        block *next = first;
-        first = (block *) new char [sizeof(block) + (block_size-1)*sizeof(block_item)];
-        char _error_message_[] = "Not enough memory!";
-        if (!first) { if (error_function) (*error_function)(_error_message_); exit(1); }
-        first_free = & (first -> data[0] );
-        for (item=first_free; item<first_free+block_size-1; item++)
-          item -> next_free = item + 1;
-        item -> next_free = NULL;
-        first -> next = next;
-      }
+    {
+      block *next = first;
+      first = (block *) new char [sizeof(block) + (block_size-1)*sizeof(block_item)];
+      char _error_message_[] = "Not enough memory!";
+      if (!first) { if (error_function) (*error_function)(_error_message_); exit(1); }
+      first_free = & (first -> data[0] );
+      for (item=first_free; item<first_free+block_size-1; item++)
+        item -> next_free = item + 1;
+      item -> next_free = NULL;
+      first -> next = next;
+    }
 
     item = first_free;
     first_free = item -> next_free;
@@ -245,7 +245,7 @@ public:
 
   /***********************************************************************/
 
-private:
+ private:
 
   typedef union block_item_st
   {

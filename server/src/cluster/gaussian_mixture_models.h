@@ -25,7 +25,7 @@ using namespace cv;
 /*	   CVPR 2011.														*/
 /************************************************************************/
 
-template <int D> struct CmGaussian 
+template <int D> struct CmGaussian
 {
   double mean[D];			// mean value
   double covar[D][D];		// covariance matrix of the Gaussian
@@ -41,7 +41,7 @@ template <int D> struct CmGaussian
 // Gaussian mixture models
 template <int D> class CmGMM_
 {
-public:
+ public:
   typedef Vec<float, D> Sample;
 
   // Initialize GMM with the number of Gaussian desired, default thrV for stop dividing
@@ -81,7 +81,7 @@ public:
   void iluProbs(const Mat sampleDf, const string &nameNE) const; // Get Probabilities of each Channel i, and illustrate it, without normalize
   void iluProbsWN(const Mat sampleDf, const string &nameNE) const; // Get Probabilities of each Channel i, and illustrate it, without normalize
 
-protected:
+ protected:
   int _K, _MaxK; // Number of Gaussian
   double _sumW; // Sum of sample weight. For typical weights it's the number of pixels
   double _ThrV; // The lowest variations of Gaussian
@@ -91,7 +91,7 @@ protected:
 };
 
 class CmGMM : public CmGMM_<3>{
-public:
+ public:
   CmGMM(int K, double thrV = 0.01):CmGMM_<3>(K, thrV) {}
 	
   void View(const string &title, bool decreaseShow = true);
@@ -116,7 +116,7 @@ public:
 
 template <int D> class CmGaussianFitter
 {
-public:
+ public:
   CmGaussianFitter() {Reset();}
 
   // Add a color sample ori __forceinline by Alec @ 3.10 2019
@@ -131,7 +131,7 @@ public:
 
   inline double Count(){return count;}
 
-private:
+ private:
   double s[D];		// sum of r, g, and b
   double p[D][D] ;	// matrix of products (i.e. r*r, r*g, r*b), some values are duplicated.
   double count;	// count of color samples added to the Gaussian
@@ -212,7 +212,7 @@ template <int D> void CmGaussianFitter<D>::BuildGuassian(CmGaussian<D>& g, doubl
 /* Gaussian mixture models                                              */
 /************************************************************************/
 template <int D> CmGMM_<D>::CmGMM_(int K, double thrV) 
-  : _K(K), _ThrV(thrV), _MaxK(K)
+    : _K(K), _ThrV(thrV), _MaxK(K)
 {
   _Guassians = new CmGaussian<D>[_K];
 }
@@ -418,126 +418,5 @@ template <int D> void CmGMM_<D>::AssignEachPixel(const Mat& sampleDf, Mat &compo
     }
   }
 }
-
-// template <int D> Vec<float, D> CmGMM_<D>::getMean(int k) const {
-//   CV_Assert(k >= 0 && k <= _K);
-//   Vec3f meanColor;
-//   meanColor[0] = (float)_Guassians[k].mean[0];
-//   meanColor[1] = (float)_Guassians[k].mean[1];
-//   meanColor[2] = (float)_Guassians[k].mean[2];
-//   return meanColor;
-// }
-
-// template <int D> double CmGMM_<D>::getWeight(int k) const{
-//   if (k < 0 || k >= _K)
-//     return 0.0;
-//   return _Guassians[k].w;
-// }
-
-// // template <int D> bool CmGMM_<D>::Save(const string &name) const
-// {
-//   // FILE* file = fopen(_S(name), "wb"); // Alec @ 3.10 2019
-//   FILE* file = fopen(name, "wb");
-//   if (file == NULL)
-//     return false;
-//   int pre = fwrite("CmGMM", sizeof(char), 5, file);
-//   int dataLen = sizeof(int) * 1 + sizeof(double) * 3;
-//   CV_Assert(pre == 5 && fwrite(this, 1, dataLen, file) == dataLen);
-//   CV_Assert(fwrite(_Guassians, sizeof(CmGaussian), _K, file) == _K);
-//   fclose(file);
-//   return true;
-// }
-
-// template <int D> bool CmGMM_<D>::Load(const string &name)
-// {
-//   // FILE* file = fopen(_S(name), "rb"); // Alec @ 3.10 2019
-//   FILE* file = fopen(name, "rb");
-//   if(file == NULL)
-//     return false;
-
-//   char buf[8];
-//   int pre = fread(buf,sizeof(char), 5, file);
-//   CV_Assert(pre == 5);
-//   if (strncmp(buf, "CmGMM", 5) != 0)	{
-//     printf("Invalidate CmGMM data file %s\n", name);
-//     return false;
-//   }
-//   int oldK = _K;
-//   int L1 = sizeof(CmGMM_), L2 = sizeof(CmGaussian*);
-//   int dataLen = sizeof(int) * 1 + sizeof(double) * 3;
-//   CV_Assert(fread(this, 1, dataLen, file) == dataLen);
-//   int g = fread(_Guassians, sizeof(CmGaussian), _K, file);
-//   CV_Assert(g == _K && oldK >= _K);
-//   fclose(file);
-//   return true;
-// }
-
-// template <int D> void CmGMM_<D>::GetProbs(const Mat sampleDf, vector<Mat> &pci) const
-// {
-//   pci.resize(_K);
-//   Mat pI = Mat::zeros(sampleDf.size(), CV_32F);
-//   for (int c = 0; c < _K; c++) {// for each component c
-//     pci[c].create(sampleDf.size(), CV_32F);
-//     for (int y = 0; y < sampleDf.rows; y++){
-//       float* prob = pci[c].ptr<float>(y);
-//       const float* sp = sampleDf.ptr<float>(y);
-//       for (int x = 0; x < sampleDf.cols; x++, sp += D)
-//         prob[x] = (float)(P(c, sp) *_Guassians[c].w);
-//     }
-//     add(pci[c], pI, pI);
-//   }
-
-//   for (int c = 0; c < _K; c++)
-//     divide(pci[c], pI, pci[c]);
-// }
-
-// template <int D> void CmGMM_<D>::GetProbsWN(const Mat sampleDf, vector<Mat> &pci) const
-// {
-//   pci.resize(_K);
-//   for (int c = 0; c < _K; c++) {// for each component c
-//     pci[c].create(sampleDf.size(), CV_32F);
-//     for (int y = 0; y < sampleDf.rows; y++){
-//       float* prob = pci[c].ptr<float>(y);
-//       const float* sp = sampleDf.ptr<float>(y);
-//       for (int x = 0; x < sampleDf.cols; x++, sp += D)
-//         prob[x] = (float)(P(c, sp) *_Guassians[c].w);
-//     }
-//   }
-// }
-
-// template <int D> void CmGMM_<D>::iluProbs(const Mat sampleDf, const string &nameNE) const
-// {
-//   cout << "CmShow !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-//   cout << "CmFile !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-//   vector<Mat> pci;
-//   GetProbs(sampleDf, pci);
-//   Mat tmpShow;
-//   for (int i = 0; i < _K; i++){
-//     normalize(pci[i], tmpShow, 0, 255, NORM_MINMAX, CV_8U);
-//     // CmShow::SaveShow(tmpShow, nameNE + format("%d.png", i));
-//   }
-//   for (int i = _K; i < _MaxK; i++)
-//     // CmFile::WriteNullFile(nameNE + format("%d.nul", i));
-// }
-
-// template <int D> void CmGMM_<D>::iluProbsWN(const Mat sampleDf, const string &nameNE) const
-// {
-//   cout << "CmShow !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-//   cout << "CmFile !!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-//   vector<Mat> pci;
-//   GetProbsWN(sampleDf, pci);
-//   Mat tmpShow;
-//   for (int i = 0; i < _K; i++){
-//     double minVal, maxVal;
-//     cv::minMaxLoc(pci[i], &minVal, &maxVal);
-//     pci[i].convertTo(tmpShow, CV_8U, 255 / (maxVal - minVal + EPS), -minVal);
-//     cvtColor(tmpShow, tmpShow, CV_GRAY2BGR);
-//     putText(tmpShow, format("Min = %g, ", minVal), Point(5, 20), CV_FONT_HERSHEY_PLAIN, 1, CV_RGB(255, 0, 0));
-//     putText(tmpShow, format("Max = %g", maxVal), Point(5, 40), CV_FONT_HERSHEY_PLAIN, 1, CV_RGB(255, 0, 0));
-//     // CmShow::SaveShow(tmpShow, nameNE + format("%d.png", i));
-//   }
-//   for (int i = _K; i < _MaxK; i++)
-//     // CmFile::WriteNullFile(nameNE + format("%d.nul", i));
-// }
 
 #endif

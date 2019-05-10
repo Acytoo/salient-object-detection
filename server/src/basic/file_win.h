@@ -10,11 +10,11 @@
 
 
 namespace ytfile {
-  bool is_dir(const std::string& path);
-  int mk_dir(const std::string& dir_name);
-  bool file_exist(const std::string& file_path);
-  int get_file_names(const std::string path,
-                      std::vector<std::string>& files);
+bool is_dir(const std::string& path);
+int mk_dir(const std::string& dir_name);
+bool file_exist(const std::string& file_path);
+int get_file_names(const std::string path,
+                   std::vector<std::string>& files);
 }
 
 
@@ -33,7 +33,7 @@ inline bool ytfile::file_exist(const std::string &file_path) {
 }
 
 int ytfile::get_file_names(const std::string folder,
-                            std::vector<std::string>& files) {
+                           std::vector<std::string>& files) {
   intptr_t hFile = 0;  // for x64
   struct _finddata_t fileinfo;
   string p;

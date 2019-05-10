@@ -45,7 +45,7 @@ Rect imageoperations::ImageOperations::GetMaskRange(const Mat& mask1u, int ext, 
 // Get continuous components for non-zero labels. Return region index mat (region index
 // of each mat position) and sum of label values in each region
 int imageoperations::ImageOperations::GetNoneZeroRegions(const Mat_<byte> &label1u,
-                                                         Mat_<int> &regIdx1i, vecI &idxSum) {
+                                                         Mat_<int> &regIdx1i, vector<int> &idxSum) {
   vector<pair<int, int>> counterIdx;
   int _w = label1u.cols, _h = label1u.rows, maxIdx = -1;
   regIdx1i.create(label1u.size());
