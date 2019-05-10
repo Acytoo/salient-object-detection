@@ -9,20 +9,7 @@ class RegionContrast{
   // Get region contrast by Mat
   // inline function
   // default: sgima_distance: 0.4, segK: 50, seg_min_size: 200, seg_sigma: 0.5
-  static cv::Mat GetRegionContrast(const cv::Mat& img3f){
-    return GetRegionContrast(img3f, 0.4, 50, 200, 0.5);
-  }
-
-  static cv::Mat GetRegionContrast(const cv::Mat& img3f,
-                                   double sigma_dist,
-                                   double segK,
-                                   int seg_min_size,
-                                   double seg_sigma);
-
-  static cv::Mat GetRegionContrast(const cv::Mat& img3f,
-                                   const cv::Mat& idx1i,
-                                   int reg_num,
-                                   double sigma_dist = 0.4);
+  static cv::Mat GetRegionContrast(const cv::Mat& img3f);
 
   static void SmoothByHist(const cv::Mat& img3f, cv::Mat& sal1f, float delta);
 

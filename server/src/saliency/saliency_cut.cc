@@ -201,15 +201,6 @@ void SaliencyCut::ShowImageInfo(const Mat& img) {
             << " size " << img.size()
             << std::endl;
 
-  // cv::Vec3b vec3b = img.at<cv::Vec3b>(0,0);
-  // uchar vec3b0 = img.at<cv::Vec3b>(0,0)[0];
-  // uchar vec3b1 = img.at<cv::Vec3b>(0,0)[1];
-  // uchar vec3b2 = img.at<cv::Vec3b>(0,0)[2];
-  // std::cout<<"vec3b = "<<vec3b<<std::endl;
-  // std::cout<<"vec3b0 = "<<(int)vec3b0<<std::endl;
-  // std::cout<<"vec3b1 = "<<(int)vec3b1<<std::endl;
-  // std::cout<<"vec3b2 = "<<(int)vec3b2<<std::endl;
-
   cv::Vec3d vec3d = img.at<cv::Vec3d>(0,0);
   double vec3d0 = img.at<cv::Vec3d>(0,0)[0];
   double vec3d1 = img.at<cv::Vec3d>(0,0)[1];
