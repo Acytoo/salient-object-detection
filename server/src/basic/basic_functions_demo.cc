@@ -67,8 +67,8 @@ int QuantizeDemo(const std::string& ori_path, std::string& res_path) {
 
   Mat colorIdx1i, img3f, tmp, color3fv, reg_sal1v;
   img3u.convertTo(img3f, CV_32FC3, 1.0/255);
-  const int tempint[3] = {12,12,12};
-  int quantize_num = regioncontrast::RegionContrast::Quantize(img3f, colorIdx1i, color3fv, tmp, 0.95, tempint);
+  double drop_num = 0.95;
+  int quantize_num = regioncontrast::RegionContrast::Quantize(img3f, colorIdx1i, color3fv, tmp, drop_num);
   cout << "quantize number " << quantize_num << endl;
   if (quantize_num == 2){
     printf("quantize_num == 2, %d: %s\n", __LINE__, __FILE__);
@@ -88,11 +88,7 @@ int QuantizeDemo(const std::string& ori_path, std::string& res_path) {
   }
 
   imwrite(res_path, color3fv);
-
-
-
   return -3;
 }
-
 // end namespace: basic_functions_demo
 }

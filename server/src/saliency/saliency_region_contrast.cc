@@ -2,11 +2,8 @@
 
 #include <iostream>
 #include <map>
-// #include <fstream>
 
 #include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/highgui/highgui.hpp>
 
 #include <saliency/saliency_cut.h>
 #include <basic/block.h>
@@ -16,16 +13,8 @@
 using namespace std;
 using namespace cv;
 
-// inline int WriteCsv(const string& filename, const cv::Mat& m) {
-//   ofstream myfile;
-//   myfile.open(filename.c_str());
-//   myfile<< cv::format(m, cv::Formatter::FMT_CSV) << std::endl;
-//   myfile.close();
-//   return 0;
-// }
-
 namespace regioncontrast {
-const int RegionContrast::DefaultNums[3] = {12, 12, 12}; // slightly different
+// const int RegionContrast::DefaultNums[3] = {12, 12, 12}; // slightly different
 
 Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
   // basic parameters
@@ -71,28 +60,8 @@ Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
     for (int c = 0; c < img3f.cols; ++c)
       p_sal[c] = p_reg_sal[p_reg_idx[c]];
   }
-  // return sal1f;
-  imshow("1 sal1f before everything", sal1f);
-
-  Mat bdReg1u = GetBorderReg(region_idx1i, reg_num, 0.02, 0.4);
-  cout << bdReg1u.size() << endl;
-  // return bdReg1u;
-  imshow("2 border regiion", bdReg1u);
-  // WriteCsv("bdReg1u.csv", bdReg1u);
-  sal1f.setTo(0, bdReg1u);
-  imshow("3 after set to border", sal1f);
-  SmoothByHist(img3f, sal1f, 0.1f);
-  imshow("4 hist smooth", sal1f);
-  SmoothByRegion(sal1f, region_idx1i, reg_num);
-  imshow("5 region smooth", sal1f);
-  sal1f.setTo(0, bdReg1u);
-  imshow("6 set to border again", sal1f);
-
   GaussianBlur(sal1f, sal1f, Size(3, 3), 0);
-  imshow("7 after gaussian blur", sal1f);
-  waitKey(0);
   return sal1f;
-
 }
 
 // img3f: bgr image, 3 channel float, row x col
@@ -104,10 +73,12 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
                              cv::Mat &color_idx1i,
                              cv::Mat &res_color3f,
                              cv::Mat &res_color_num,
-                             double ratio,
-                             const int clrNums[3]) {
-  float clrTmp[3] = {clrNums[0] - 0.0001f, clrNums[1] - 0.0001f, clrNums[2] - 0.0001f}; // 11.9999, 11.9999, 11.9999
-  int w[3] = {clrNums[1] * clrNums[2], clrNums[2], 1}; // 144, 12, 1
+                             double ratio) {
+  int color_mask_base[3] = {12, 12, 12};
+  float color_masks[3] = {color_mask_base[0] - 0.0001f,
+                          color_mask_base[1] - 0.0001f,
+                          color_mask_base[2] - 0.0001f}; // 11.9999, 11.9999, 11.9999
+  int w[3] = {color_mask_base[1] * color_mask_base[2], color_mask_base[2], 1}; // 144, 12, 1
   CV_Assert(img3f.data != NULL); // works in opencv 4
   color_idx1i = Mat::zeros(img3f.size(), CV_32S);
   int rows = img3f.rows, cols = img3f.cols;
@@ -122,9 +93,9 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
     const float* p_ori_img = img3f.ptr<float>(y);
     int* p_color_idx = color_idx1i.ptr<int>(y);
     for (int x = 0; x < cols; ++x, p_ori_img += 3) { // (B*144 + G*12 + r*1) * 11.9999 for 1st quantize
-      p_color_idx[x] = (int)(p_ori_img[0]*clrTmp[0])*w[0] +
-                       (int)(p_ori_img[1]*clrTmp[1])*w[1] +
-                       (int)(p_ori_img[2]*clrTmp[2]);
+      p_color_idx[x] = (int)(p_ori_img[0]*color_masks[0])*w[0] +
+                       (int)(p_ori_img[1]*color_masks[1])*w[1] +
+                       (int)(p_ori_img[2]*color_masks[2]);
       pallet[p_color_idx[x]]++;
     }
   }
@@ -259,196 +230,6 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
     }
     p_reg_sal[i] *= exp(-9.0 * (sqr(regs[i].ad2c.x) + sqr(regs[i].ad2c.y)));
   }
-}
-
-// Get border regions, which typically corresponds to background region
-// region_idx1i: source image size, 1 channel int
-// reg_num: number of regions
-// ratio: default: 0.02
-// thr: default: 0.3
-Mat RegionContrast::GetBorderReg(const cv::Mat &region_idx1i,
-                                 int reg_num, double ratio,
-                                 double thr) {
-  // Variance of x and y
-  vector<double> vX(reg_num), vY(reg_num);
-  int w = region_idx1i.cols, h = region_idx1i.rows; {
-    vector<double> mX(reg_num), mY(reg_num), n(reg_num); // Mean value of x and y, pixel number of region
-    for (int y = 0; y < region_idx1i.rows; ++y) {
-      const int *idx = region_idx1i.ptr<int>(y);
-      for (int x = 0; x < region_idx1i.cols; ++x, ++idx)
-        mX[*idx] += x, mY[*idx] += y, ++n[*idx];
-    }
-    for (int i = 0; i < reg_num; ++i)
-      mX[i] /= n[i], mY[i] /= n[i];
-    for (int y = 0; y < region_idx1i.rows; ++y){
-      const int *idx = region_idx1i.ptr<int>(y);
-      for (int x = 0; x < region_idx1i.cols; ++x, ++idx)
-        vX[*idx] += abs(x - mX[*idx]), vY[*idx] += abs(y - mY[*idx]);
-    }
-    for (int i = 0; i < reg_num; ++i)
-      vX[i] = vX[i]/n[i] + EPS, vY[i] = vY[i]/n[i] + EPS;
-  }
-
-  // Number of border pixels in x and y border region
-  vector<int> xbNum(reg_num), ybNum(reg_num);
-  int wGap = cvRound(w * ratio), hGap = cvRound(h * ratio);
-  vector<Point> bPnts; {
-    ForPoints2(pnt, 0, 0, w, hGap) // Top region
-        ybNum[region_idx1i.at<int>(pnt)]++, bPnts.push_back(pnt);
-    ForPoints2(pnt, 0, h - hGap, w, h) // Bottom region
-        ybNum[region_idx1i.at<int>(pnt)]++, bPnts.push_back(pnt);
-    ForPoints2(pnt, 0, 0, wGap, h) // Left region
-        xbNum[region_idx1i.at<int>(pnt)]++, bPnts.push_back(pnt);
-    ForPoints2(pnt, w - wGap, 0, w, h)
-        xbNum[region_idx1i.at<int>(pnt)]++, bPnts.push_back(pnt);
-  }
-
-  Mat bReg1u(region_idx1i.size(), CV_8U); {  // likelihood map of border region
-    double xR = 1.0/(4*hGap), yR = 1.0/(4*wGap);
-    vector<byte> regL(reg_num); // likelihood of each region belongs to border background
-    for (int i = 0; i < reg_num; ++i) {
-      double lk = xbNum[i] * xR / vY[i] + ybNum[i] * yR / vX[i];
-      regL[i] = lk/thr > 1 ? 255 : 0; //saturate_cast<byte>(255 * lk / thr);
-    }
-
-    for (int r = 0; r < h; ++r)	{
-      const int *idx = region_idx1i.ptr<int>(r);
-      byte* maskData = bReg1u.ptr<byte>(r);
-      for (int c = 0; c < w; ++c, ++idx)
-        maskData[c] = regL[*idx];
-    }
-  }
-
-  for (size_t i = 0; i < bPnts.size(); ++i)
-    bReg1u.at<byte>(bPnts[i]) = 255;
-  return bReg1u;
-
-}
-
-void RegionContrast::SmoothByHist(const cv::Mat &img3f,
-                                  cv::Mat &sal1f, float delta) {
-  //imshow("Before", sal1f); imshow("Src", img3f);
-
-  // Quantize colors
-  CV_Assert(img3f.size() == sal1f.size() && img3f.type() == CV_32FC3 && sal1f.type() == CV_32FC1);
-  Mat idx1i, binColor3f, colorNums1i;
-  int binN = Quantize(img3f, idx1i, binColor3f, colorNums1i);
-
-  // Get initial color saliency
-  Mat _colorSal =  Mat::zeros(1, binN, CV_64FC1);
-  int rows = img3f.rows, cols = img3f.cols;{
-    double* colorSal = (double*)_colorSal.data;
-    if (img3f.isContinuous() && sal1f.isContinuous())
-      cols *= img3f.rows, rows = 1;
-    for (int y = 0; y < rows; ++y){
-      const int* idx = idx1i.ptr<int>(y);
-      const float* initialS = sal1f.ptr<float>(y);
-      for (int x = 0; x < cols; x++)
-        colorSal[idx[x]] += initialS[x];
-    }
-    const int *colorNum = (int*)(colorNums1i.data);
-    for (int i = 0; i < binN; i++)
-      colorSal[i] /= colorNum[i];
-    normalize(_colorSal, _colorSal, 0, 1, NORM_MINMAX, CV_32F);
-  }
-  // Find similar colors & Smooth saliency value for color bins
-  vector<vector<CostfIdx>> similar(binN); // Similar color: how similar and their index
-  Vec3f* color = (Vec3f*)(binColor3f.data);
-  cvtColor(binColor3f, binColor3f, COLOR_BGR2Lab);
-  for (int i = 0; i < binN; i++){
-    vector<CostfIdx> &similari = similar[i];
-    similari.push_back(make_pair(0.f, i));
-    for (int j = 0; j < binN; j++)
-      if (i != j)
-        similari.push_back(make_pair(vecDist<float, 3>(color[i], color[j]), j));
-    sort(similari.begin(), similari.end());
-  }
-  cvtColor(binColor3f, binColor3f, COLOR_Lab2BGR);
-  SmoothSaliency(colorNums1i, _colorSal, delta, similar);
-
-  // Reassign pixel saliency values
-  float* colorSal = (float*)(_colorSal.data);
-  for (int y = 0; y < rows; ++y){
-    const int* idx = idx1i.ptr<int>(y);
-    float* resSal = sal1f.ptr<float>(y);
-    for (int x = 0; x < cols; x++)
-      resSal[x] = colorSal[idx[x]];
-  }
-}
-
-void RegionContrast::SmoothByRegion(cv::Mat &sal1f,
-                                    const cv::Mat &segIdx1i,
-                                    int regNum,
-                                    bool bNormalize) {
-  vector<double> saliecy(regNum, 0);
-  vector<int> counter(regNum, 0);
-  for (int y = 0; y < sal1f.rows; ++y){
-    const int *idx = segIdx1i.ptr<int>(y);
-    float *sal = sal1f.ptr<float>(y);
-    for (int x = 0; x < sal1f.cols; x++){
-      saliecy[idx[x]] += sal[x];
-      counter[idx[x]] ++;
-    }
-  }
-
-  for (size_t i = 0; i < counter.size(); i++)
-    saliecy[i] /= counter[i];
-  Mat rSal(1, regNum, CV_64FC1, &saliecy[0]);
-  if (bNormalize)
-    normalize(rSal, rSal, 0, 1, NORM_MINMAX);
-
-  for (int y = 0; y < sal1f.rows; ++y){
-    const int *idx = segIdx1i.ptr<int>(y);
-    float *sal = sal1f.ptr<float>(y);
-    for (int x = 0; x < sal1f.cols; x++)
-      sal[x] = (float)saliecy[idx[x]];
-  }
-}
-
-
-void RegionContrast::SmoothSaliency(cv::Mat &sal1f,
-                                    float delta,
-                                    const vector<vector<CostfIdx> > &similar) {
-  Mat colorNum1i = Mat::ones(sal1f.size(), CV_32SC1);
-  SmoothSaliency(colorNum1i, sal1f, delta, similar);
-}
-
-void RegionContrast::SmoothSaliency(const cv::Mat &colorNum1i,
-                                    cv::Mat &sal1f,
-                                    float delta,
-                                    const vector<vector<CostfIdx> > &similar) {
-  if (sal1f.cols < 2)
-    return;
-  CV_Assert(sal1f.rows == 1 && sal1f.type() == CV_32FC1);
-  CV_Assert(colorNum1i.size() == sal1f.size() && colorNum1i.type() == CV_32SC1);
-
-  int binN = sal1f.cols;
-  Mat newSal1d= Mat::zeros(1, binN, CV_64FC1);
-  float *sal = (float*)(sal1f.data);
-  double *newSal = (double*)(newSal1d.data);
-  int *pW = (int*)(colorNum1i.data);
-
-  // Distance based smooth
-  int n = max(cvRound(binN * delta), 2);
-  vector<double> dist(n, 0), val(n), w(n);
-  for (int i = 0; i < binN; i++){
-    const vector<CostfIdx> &similari = similar[i];
-    double totalDist = 0, totoalWeight = 0;
-    for (int j = 0; j < n; j++){
-      int ithIdx =similari[j].second;
-      dist[j] = similari[j].first;
-      val[j] = sal[ithIdx];
-      w[j] = pW[ithIdx];
-      totalDist += dist[j];
-      totoalWeight += w[j];
-    }
-    double valCrnt = 0;
-    for (int j = 0; j < n; j++)
-      valCrnt += val[j] * (totalDist - dist[j]) * w[j];
-
-    newSal[i] =  valCrnt / (totalDist * totoalWeight);
-  }
-  normalize(newSal1d, sal1f, 0, 1, NORM_MINMAX, CV_32FC1);
 }
 
 } // end namespace regioncontrast
