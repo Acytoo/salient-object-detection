@@ -72,25 +72,25 @@ Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
       p_sal[c] = p_reg_sal[p_reg_idx[c]];
   }
   // return sal1f;
-  imshow("1 sal1f before everything", sal1f);
+  // imshow("1 sal1f before everything", sal1f);
 
   Mat bdReg1u = GetBorderReg(region_idx1i, reg_num, 0.02, 0.4);
-  cout << bdReg1u.size() << endl;
+  // cout << bdReg1u.size() << endl;
   // return bdReg1u;
-  imshow("2 border regiion", bdReg1u);
+  // imshow("2 border regiion", bdReg1u);
   // WriteCsv("bdReg1u.csv", bdReg1u);
   sal1f.setTo(0, bdReg1u);
-  imshow("3 after set to border", sal1f);
+  // imshow("3 after set to border", sal1f);
   SmoothByHist(img3f, sal1f, 0.1f);
-  imshow("4 hist smooth", sal1f);
+  // imshow("4 hist smooth", sal1f);
   SmoothByRegion(sal1f, region_idx1i, reg_num);
-  imshow("5 region smooth", sal1f);
+  // imshow("5 region smooth", sal1f);
   sal1f.setTo(0, bdReg1u);
-  imshow("6 set to border again", sal1f);
+  // imshow("6 set to border again", sal1f);
 
   GaussianBlur(sal1f, sal1f, Size(3, 3), 0);
-  imshow("7 after gaussian blur", sal1f);
-  waitKey(0);
+  // imshow("7 after gaussian blur", sal1f);
+  // waitKey(0);
   return sal1f;
 
 }
