@@ -1,248 +1,248 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
-  <class>process_single_page</class>
-  <widget class="QMainWindow" name="process_single_page">
+ <class>process_single_page</class>
+ <widget class="QMainWindow" name="process_single_page">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1240</width>
+    <height>580</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1240</width>
+    <height>580</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1240</width>
+    <height>580</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Single</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>../../../workSpace/salient-object-detection/resources/image/icon.png</normaloff>../../../workSpace/salient-object-detection/resources/image/icon.png</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QPushButton" name="button_back">
     <property name="geometry">
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>1240</width>
-        <height>580</height>
-      </rect>
+     <rect>
+      <x>0</x>
+      <y>10</y>
+      <width>1240</width>
+      <height>26</height>
+     </rect>
     </property>
     <property name="sizePolicy">
-      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-      </sizepolicy>
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
-    <property name="minimumSize">
-      <size>
-        <width>1240</width>
-        <height>580</height>
-      </size>
+    <property name="text">
+     <string>BACK</string>
     </property>
-    <property name="maximumSize">
-      <size>
-        <width>1240</width>
-        <height>580</height>
-      </size>
+   </widget>
+   <widget class="QPushButton" name="button_browse">
+    <property name="geometry">
+     <rect>
+      <x>80</x>
+      <y>50</y>
+      <width>100</width>
+      <height>26</height>
+     </rect>
     </property>
-    <property name="windowTitle">
-      <string>Single</string>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
     </property>
-    <property name="windowIcon">
-      <iconset>
-      <normaloff>../../../workSpace/salient-object-detection/resources/image/icon.png</normaloff>../../../workSpace/salient-object-detection/resources/image/icon.png</iconset>
+    <property name="text">
+     <string>BROWSE</string>
     </property>
-    <widget class="QWidget" name="centralwidget">
-      <widget class="QPushButton" name="button_back">
-        <property name="geometry">
-          <rect>
-            <x>0</x>
-            <y>10</y>
-            <width>1240</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string>BACK</string>
-        </property>
-      </widget>
-      <widget class="QPushButton" name="button_browse">
-        <property name="geometry">
-          <rect>
-            <x>80</x>
-            <y>50</y>
-            <width>100</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string>BROWSE</string>
-        </property>
-      </widget>
-      <widget class="QPushButton" name="button_process">
-        <property name="geometry">
-          <rect>
-            <x>1055</x>
-            <y>50</y>
-            <width>100</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string>PROCESS</string>
-        </property>
-      </widget>
-      <widget class="QLineEdit" name="edit_file_path">
-        <property name="geometry">
-          <rect>
-            <x>270</x>
-            <y>50</y>
-            <width>700</width>
-            <height>26</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_img_ori">
-        <property name="geometry">
-          <rect>
-            <x>10</x>
-            <y>110</y>
-            <width>400</width>
-            <height>400</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string>Original</string>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_img_rc">
-        <property name="geometry">
-          <rect>
-            <x>420</x>
-            <y>110</y>
-            <width>400</width>
-            <height>400</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string>Region Contrast</string>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_img_rcc">
-        <property name="geometry">
-          <rect>
-            <x>830</x>
-            <y>110</y>
-            <width>400</width>
-            <height>400</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string>Region Contrast Cut</string>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_original_path">
-        <property name="geometry">
-          <rect>
-            <x>10</x>
-            <y>540</y>
-            <width>400</width>
-            <height>20</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string/>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_result_rc_path">
-        <property name="geometry">
-          <rect>
-            <x>420</x>
-            <y>540</y>
-            <width>400</width>
-            <height>20</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string/>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-      <widget class="QLabel" name="label_result_rcc_path">
-        <property name="geometry">
-          <rect>
-            <x>830</x>
-            <y>540</y>
-            <width>400</width>
-            <height>20</height>
-          </rect>
-        </property>
-        <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-          </sizepolicy>
-        </property>
-        <property name="text">
-          <string/>
-        </property>
-        <property name="alignment">
-          <set>Qt::AlignCenter</set>
-        </property>
-      </widget>
-    </widget>
+   </widget>
+   <widget class="QPushButton" name="button_process">
+    <property name="geometry">
+     <rect>
+      <x>1055</x>
+      <y>50</y>
+      <width>100</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>PROCESS</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="edit_file_path">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>50</y>
+      <width>700</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_img_ori">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>110</y>
+      <width>400</width>
+      <height>400</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Original</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_img_rc">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>110</y>
+      <width>400</width>
+      <height>400</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>--------------&gt;</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_img_rcc">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>110</y>
+      <width>400</width>
+      <height>400</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string>Region Contrast</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_original_path">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>540</y>
+      <width>400</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_result_rc_path">
+    <property name="geometry">
+     <rect>
+      <x>420</x>
+      <y>540</y>
+      <width>400</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_result_rcc_path">
+    <property name="geometry">
+     <rect>
+      <x>830</x>
+      <y>540</y>
+      <width>400</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
   </widget>
-  <resources/>
-  <connections/>
+ </widget>
+ <resources/>
+ <connections/>
 </ui>
