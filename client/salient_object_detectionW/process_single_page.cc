@@ -7,7 +7,7 @@
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 
-#include <saliency/saliency_cut.h>
+#include <saliency/saliency_region_contrast.h>
 
 process_single_page::process_single_page(QWidget *parent) :
   QMainWindow(parent),
@@ -63,8 +63,8 @@ void process_single_page::on_button_process_clicked()
     QMessageBox::about(this, "Error", "Please choose an image!");
     return;
   }
-  std::string result_path_rc, result_path_rcc;
-  std::thread img_process_thread(saliencycut::SaliencyCut::ProcessSingleImg, std::ref(image_path_), std::ref(result_path_rc), std::ref(result_path_rcc));
+  std::string result_path_rc;
+  std::thread img_process_thread(regioncontrast::RegionContrast::ProcessSingleImg, std::ref(image_path_), std::ref(result_path_rc));
   img_process_thread.join();
 
   //QPixmap img_rc(result_path_rc.c_str());
@@ -74,7 +74,7 @@ void process_single_page::on_button_process_clicked()
 
   QString original_path = "Original image, " + QString::fromStdString(image_path_);
   //QString result_rc_path = "RC, " + QString::fromStdString(result_path_rc);
-  QString result_rcc_path = "RC, " + QString::fromStdString(result_path_rcc);
+  QString result_rcc_path = "RC, " + QString::fromStdString(result_path_rc);
   ui->label_original_path->setText(original_path);
   //ui->label_result_rc_path->setText(result_rc_path);
   ui->label_result_rcc_path->setText(result_rcc_path);

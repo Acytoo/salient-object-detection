@@ -7,7 +7,7 @@ FATAL: In-source builds are not allowed.
 endif()
 
 cmake_minimum_required(VERSION 3.13)
-project(salient_object_detection VERSION 1.0.0)
+project(salient_object_detection VERSION 1.0.1)
 
 
 if(UNIX AND NOT APPLE)
@@ -17,7 +17,7 @@ endif()
 if(LINUX)
   # for Linux, BSD, Solaris, Minix
   message(STATUS ">>> Linux")
-  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -O3") # c++11 oook
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -pthread -O3") # c++11 is ok ,O3: optimize
 
 else()
   message(STATUS ">>> Windows")
@@ -27,7 +27,7 @@ else()
   set(CMAKE_PREFIX_PATH C:/Qt/Qt5.12.1/5.12.1/msvc2017_64/lib/cmake)
 endif()
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV REQUIRED) # support OpenCv 3.2.0 --- OpenCv 4.1.0
 
 if (NOT OpenCV_FOUND)
   message(FATAL_ERROR "FATAL: OpenCV is needed")
@@ -48,4 +48,4 @@ add_subdirectory(client)
 
 set(TARGET_EXECUTABLE_GUI salient_object_detectionW.out)
 add_executable(${TARGET_EXECUTABLE_GUI} WIN32 client/salient_object_detectionW/main.cc) # remove 'WIN32' to show console
-target_link_libraries(${TARGET_EXECUTABLE_GUI} PRIVATE ${OpenCV_LIBS} saliency basic cluster salient_object_detectionW)
+target_link_libraries(${TARGET_EXECUTABLE_GUI} PRIVATE ${OpenCV_LIBS} saliency basic salient_object_detectionW)

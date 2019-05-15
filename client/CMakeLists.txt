@@ -34,10 +34,10 @@ set(TARGET_EXECUTABLE salient_object_detection.out)
 
 add_executable(${TARGET_EXECUTABLE} salient_object_detection.cc)
 
-target_link_libraries(${TARGET_EXECUTABLE} PRIVATE ${OpenCV_LIBS} saliency basic cluster)
+target_link_libraries(${TARGET_EXECUTABLE} PRIVATE ${OpenCV_LIBS} saliency basic)
 
 set(TARGET_EXECUTABLE test_segment.out)
 
 add_executable(${TARGET_EXECUTABLE} test_segment.cc)
 
-target_link_libraries(${TARGET_EXECUTABLE} PRIVATE ${OpenCV_LIBS} saliency basic cluster)
+target_link_libraries(${TARGET_EXECUTABLE} PRIVATE ${OpenCV_LIBS} saliency basic)

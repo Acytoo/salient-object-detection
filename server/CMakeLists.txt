@@ -18,20 +18,11 @@ add_library(
 
 add_library(
   saliency STATIC  # SHARED
-  src/saliency/saliency_cut.h
-  src/saliency/saliency_cut.cc
   src/saliency/saliency_region_contrast.h
   src/saliency/saliency_region_contrast.cc
   src/saliency/some_definition.h
   src/saliency/some_definition.cc
   )
 
-add_library(
-  cluster STATIC  # SHARED
-  src/cluster/gaussian_mixture_models.h
-  src/cluster/gaussian_mixture_models.cc
-  )
-
 target_include_directories(basic PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
-target_include_directories(cluster PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 target_include_directories(saliency PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")

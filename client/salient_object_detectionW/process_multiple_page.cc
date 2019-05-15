@@ -7,7 +7,9 @@
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 
-#include <saliency/saliency_cut.h>
+#include <saliency/saliency_region_contrast.h>
+
+using namespace std;
 
 process_multiple_page::process_multiple_page(QWidget *parent) :
   QMainWindow(parent),
@@ -47,7 +49,7 @@ void process_multiple_page::on_button_process_clicked()
   }
   int amount= 0, time_cost = 0;
   std::string root_dir_path = ui->edit_root_path->text().toUtf8().constData();
-  std::thread img_process_thread(saliencycut::SaliencyCut::ProcessImages, std::ref(root_dir_path), std::ref(amount), std::ref(time_cost));
+  std::thread img_process_thread(regioncontrast::RegionContrast::ProcessImages, std::ref(root_dir_path), std::ref(amount), std::ref(time_cost));
   img_process_thread.join();
   string result_summary = "Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!";
 

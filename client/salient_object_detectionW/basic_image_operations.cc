@@ -94,17 +94,3 @@ void basic_image_operations::on_button_gaussian_blur_clicked()
   GaussianBlurDemo(image_path_);
 
 }
-
-void basic_image_operations::on_button_quantize_clicked()
-{
-  if (file_path_.isEmpty()) {
-    QMessageBox::about(this, "Error", "Please choose an image!");
-    return;
-  }
-  std::string quantize_path = "";
-  std::thread img_process_thread(basic_functions_demo::QuantizeDemo, std::ref(image_path_), std::ref(quantize_path));
-  img_process_thread.join();
-  QPixmap quantize_img(quantize_path.c_str());
-  ui->label_img_processed->setPixmap(quantize_img.scaled(400,400,Qt::KeepAspectRatio));
-  ui->label_function_name->setText("Quantize");
-}

@@ -11,8 +11,13 @@ class RegionContrast{
                                cv::Mat &res_color3f,cv::Mat &res_color_num,
                                double ratio = 0.95);
 
+  static int ProcessSingleImg(const std::string& img_path,
+                              std::string& result_rc_path);
+  static int ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost);
+
+  static void ShowImageInfo(const cv::Mat& img);
+
  private:
-  // static const int DefaultNums[3];
 
   class Region {
    public:

@@ -40,7 +40,7 @@
        </sizepolicy>
       </property>
       <property name="text">
-       <string>There's a path for everyone</string>
+       <string>The climb is all there is</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
