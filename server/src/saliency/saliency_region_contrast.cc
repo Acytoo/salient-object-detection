@@ -26,7 +26,7 @@ namespace regioncontrast {
     cout << "cpp: " << __cplusplus << endl;
     int end_pos = img_path.rfind(".");
     string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
-    result_rc_path = str_name + "_RC.png"; // Region contrast
+    result_rc_patbh = str_name + "_RC.png"; // Region contrast
     // result_rcc_path = str_name + "_RCC.png"; // Region contrast cut
     //first error detection, permission and presense of the image
     //imread 2nd parameter 0: grayscale; 1: 3 channels; -1: as is(with alpha channel)
@@ -35,16 +35,23 @@ namespace regioncontrast {
       cout << "empty image" << endl;
       return -1;
     }
+    // CV_Assert(img3f.type() == CV_8UC3);
     //convert to float, 3 channels
     img3f.convertTo(img3f, CV_32FC3, 1.0/255, 0);
 
 
-    Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
+    Mat sal1f = GetRegionContrast(img3f);
+
+    //  Binarization
+    cv::threshold(sal1f, sal1f, cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols/0.5, 1, THRESH_BINARY);
+
     // save region contrast image
     vector<int> compression_params;
     compression_params.push_back(IMWRITE_PNG_COMPRESSION);
     compression_params.push_back(9);
-    imwrite(result_rc_path, sal*255, compression_params);
+    imwrite(result_rc_path, sal1f*255, compression_params);
+    Mat sal_bi1f;
+    // Binarization(sal1f, sal_bi1f);
 
     return 0;
   }
@@ -337,5 +344,16 @@ namespace regioncontrast {
       p_reg_sal[i] *= exp(-9.0 * (sqr(regs[i].ad2c.x) + sqr(regs[i].ad2c.y)));
     }
   }
+
+  // sal1f: saliency image in 1 channel float
+  // sal_bi1f: saliency image after binarization, 1 channel float
+  // void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1f) {
+  //   CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
+  //   int row = sal1f.rows, col = sal1f.cols;
+  //   sal_bi1f = Mat::zeros(row, col, CV_32FC1);
+  //   double threshold = cv::sum(sal1f)[0] / row / col;
+  //   // cout << threshold << endl;
+
+  // }
 
 } // end namespace regioncontrast

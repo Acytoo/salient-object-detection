@@ -35,6 +35,8 @@ class RegionContrast{
                                  const cv::Mat& color3fv, cv::Mat& reg_sal1dv,
                                  double sigma_dist);
 
+  // static void Binarization(const cv::Mat &sal1f, cv::Mat &sal_bi1f);
+
 };
 
 }
