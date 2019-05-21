@@ -12,7 +12,9 @@ class RegionContrast{
                                double ratio = 0.95);
 
   static int ProcessSingleImg(const std::string& img_path,
-                              std::string& result_rc_path);
+                              std::string& res_salient,
+                              std::string& res_salient_bi,
+                              std::string& res_salient_cut);
   static int ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost);
 
   static void ShowImageInfo(const cv::Mat& img);
@@ -36,6 +38,8 @@ class RegionContrast{
                                  double sigma_dist);
 
   // static void Binarization(const cv::Mat &sal1f, cv::Mat &sal_bi1f);
+  // Cut the original colord image
+  static void CutImage(const cv::Mat &img3f, const cv::Mat &sal_bi1f, cv::Mat &img_cut3f);
 
 };
 

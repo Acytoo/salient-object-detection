@@ -16,14 +16,14 @@ int main() {
   // cin >> img_path;
   Mat ori_img3u = imread(img_path);
   imshow("ori", ori_img3u);
-  string result_rc_path = "";
+  string res_salient, res_salient_bi, res_salient_cut;
   // string img_path = "/home/acytoo/Pictures/nfr.png";
   // string img_path = "/home/acytoo/Pictures/white_black.jpg";
   // string img_path = "/home/acytoo/Pictures/2colors.png";
   // string img_path = "/home/acytoo/Pictures/hotblack.jpg";
   // string img_path = "/home/acytoo/Pictures/black.png";
   // jpg has 3 channels, and bmp sometimes has 4, in color
-  regioncontrast::RegionContrast::ProcessSingleImg(img_path, result_rc_path);
+  regioncontrast::RegionContrast::ProcessSingleImg(img_path, res_salient, res_salient_bi, res_salient_cut);
 
   // string root_dir_path = "./test_img";
   // int amount = 0, time_cost = 0;

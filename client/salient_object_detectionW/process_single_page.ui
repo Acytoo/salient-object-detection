@@ -131,13 +131,13 @@
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_img_rc">
+   <widget class="QLabel" name="label_arrow">
     <property name="geometry">
      <rect>
       <x>420</x>
-      <y>110</y>
+      <y>300</y>
       <width>400</width>
-      <height>400</height>
+      <height>16</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -147,13 +147,13 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>--------------&gt;</string>
+     <string>---------------------------------------------------------&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
     </property>
    </widget>
-   <widget class="QLabel" name="label_img_rcc">
+   <widget class="QLabel" name="label_img_salient_cut">
     <property name="geometry">
      <rect>
       <x>830</x>
@@ -169,7 +169,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>Region Contrast</string>
+     <string>Salient Region Cut</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -179,28 +179,6 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>540</y>
-      <width>400</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="sizePolicy">
-     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-      <horstretch>0</horstretch>
-      <verstretch>0</verstretch>
-     </sizepolicy>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="alignment">
-     <set>Qt::AlignCenter</set>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_result_rc_path">
-    <property name="geometry">
-     <rect>
-      <x>420</x>
       <y>540</y>
       <width>400</width>
       <height>20</height>
@@ -236,6 +214,38 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_img_salient">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>90</y>
+      <width>200</width>
+      <height>200</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Salient Region</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_img_salient_bi">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>350</y>
+      <width>200</width>
+      <height>200</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Salient Region Binarized</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
