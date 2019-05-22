@@ -11,7 +11,8 @@ using namespace std;
 using namespace cv;
 
 int main() {
-  string img_path = "/home/acytoo/Pictures/12.bmp";
+  string img_path = "/home/acytoo/workSpace/salient-object-detection/data/saliency_test/101.jpg";
+      // "/home/acytoo/Pictures/12.bmp";
   // cout << "imput the path of your image file" << endl;
   // cin >> img_path;
   Mat ori_img3u = imread(img_path);

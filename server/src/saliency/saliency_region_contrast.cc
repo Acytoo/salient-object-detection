@@ -29,6 +29,8 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
                                      string& res_salient,
                                      string& res_salient_bi,
                                      string& res_salient_cut) {
+  const double cut_threshold = 1.8;
+
   // cout << "cpp: " << __cplusplus << endl;
   int end_pos = img_path.rfind(".");
   string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
@@ -45,10 +47,7 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
   // CV_Assert(img3f.type() == CV_8UC3);
   //convert to float, 3 channels
   img3f.convertTo(img3f, CV_32FC3, 1.0/255, 0);
-
-
   Mat sal1f = GetRegionContrast(img3f);
-
   // save region contrast image
   vector<int> compression_params;
   compression_params.push_back(IMWRITE_PNG_COMPRESSION);
@@ -56,18 +55,39 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
   imwrite(res_salient, sal1f*255, compression_params);
 
   //  Binarization
-  Mat sal_bi1f, img_cut3f;
-  cv::threshold(sal1f, sal_bi1f, cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols/0.5, 1, THRESH_BINARY);
-  imwrite(res_salient_bi, sal_bi1f*255, compression_params);
+  Mat sal_bi1u, img_cut3f;
+  cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
+  // sal_bi1u is 1 channel float now
+  sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+  imwrite(res_salient_bi, sal_bi1u*255, compression_params);
 
-  CutImage(img3f, sal_bi1f, img_cut3f);
+  cout << sal_bi1u << endl;
+  CutImage(img3f, sal_bi1u, img_cut3f);
   imwrite(res_salient_cut, img_cut3f*255, compression_params);
-  return 0;
+
+  // Mat criterion1u =
+  //     imread("/home/acytoo/workSpace/salient-object-detection/data/saliency_test/criteria/101.png", 0); // 0 or 255
+  // imshow("criteria", criterion1u);
+  // criterion1u /= 255;
+  // cout << criterion1u << endl << endl;
+  // // cout << sal_bi1u << endl;
+  // // cout << criterion1u << endl << criterion1u.type() << endl;
+  // sal_bi1u.setTo(0, criterion1u);
+  // imshow("bi after setTo", sal_bi1u*255);
+  // waitKey(0);
+
+  // // cout << cv::sum(sal_bi1u)[0] << endl;
+  // double precisions = cv::sum(sal_bi1u)[0] / cv::sum(criterion1u)[0];
+  // cout << 1-precisions << endl;
+  return 0;  //
 }
 
 
-int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost) {
-
+int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost,
+                                  bool benchmark, double& average_precision) {
+  cout << "benchmark " << benchmark << endl;
+  double cut_threshold = 1.8; // threshold for colored image cut
+  // Read the names of images we are going to process
   time_t start_time = std::time(0);
   int image_amount = -1;
   vector<string> image_names;
@@ -79,7 +99,7 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
   string saliency_dir_path = root_dir_path+ "/" + "cut_result_" + to_string(std::time(0));
   if (ytfile::file_exist(saliency_dir_path)) {
     if (!ytfile::is_dir(saliency_dir_path)) {
-      cout << "Please rename your file 'cut_result'" << endl;
+      // cout << "Please rename your file 'cut_result'" << endl;
       return -1;
     }
   }
@@ -88,23 +108,95 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
   }
   // Finish make directory; Start cutting
 
+  vector<double> precisions(image_amount, 0); // precision of each cut
+  // cout << "image_amount " << image_amount << endl;
+  // precisions.reserve(image_amount);
+  // cout << "precisions capacity " << precisions.capacity() << endl;
+  if (benchmark) {
 #pragma omp parallel for
-  for (int i = 0; i < image_amount; ++i){
-    string img_path = image_names[i];
-    int end_pos = img_path.rfind(".");
-    string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
-    string res_salient = str_name + "_RC.png"; // Region contrast
-    // string result_rcc_path = str_name + "_RCC.png"; // Region contrast cut
-    // printf("OpenMP Test, thread index: %d\n", omp_get_thread_num());
+    for (int i = 0; i < image_amount; ++i){
+      string img_path = image_names[i];
+      int end_pos = img_path.rfind(".");
+      string str_name = img_path.substr(0, end_pos);
+      string res_salient = str_name + "_RC.png"; // Region contrast
+      string res_salient_bi = str_name + "_BI.png";
+      string res_salient_cut = str_name + "_CUT.png";
 
-    Mat img3f = imread(root_dir_path+ "/" + img_path);
-    CV_Assert_(img3f.data != NULL, ("Can't load image \n"));
-    img3f.convertTo(img3f, CV_32FC3, 1.0/255);
-    Mat sal = regioncontrast::RegionContrast::GetRegionContrast(img3f);
-    imwrite(saliency_dir_path + "/" + res_salient, sal*255);
+      Mat img3f = imread(root_dir_path+ "/" + img_path);
+      CV_Assert_(img3f.data != NULL, ("Can't load image \n")); // if () continue;
+      img3f.convertTo(img3f, CV_32FC3, 1.0/255);
+
+      Mat sal1f = GetRegionContrast(img3f);
+      // save region contrast image
+      // parallel_for: can I put the compression_params out the fir loop????????
+      vector<int> compression_params;  // Sometimes without these parameters we can't save image
+      compression_params.push_back(IMWRITE_PNG_COMPRESSION);
+      compression_params.push_back(9);
+      imwrite(saliency_dir_path + "/" + res_salient, sal1f*255, compression_params);
+
+      //  Binarization
+      Mat sal_bi1u, img_cut3f;
+      cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
+      // sal_bi1u is 1 channel float now
+      sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+      imwrite(saliency_dir_path + "/" + res_salient_bi, sal_bi1u*255, compression_params);
+
+      // save colored cut
+      CutImage(img3f, sal_bi1u, img_cut3f);
+      imwrite(saliency_dir_path + "/" + res_salient_cut, img_cut3f*255, compression_params);
+
+      // calculate precession
+      Mat criterion1u = imread(root_dir_path+ "/criteria/" + str_name + ".png", 0); // 0 or 255
+      criterion1u /= 255;
+      // cout << criterion1u << endl << criterion1u.type() << endl;
+      sal_bi1u.setTo(0, criterion1u);
+      // cout << cv::sum(sal_bi1u)[0] << endl;
+      precisions[i] = 1 - cv::sum(sal_bi1u)[0] / cv::sum(criterion1u)[0];
+      // cout << precisions[i] << endl;
+    }
+  } else {
+#pragma omp parallel for
+    for (int i = 0; i < image_amount; ++i){
+      string img_path = image_names[i];
+      int end_pos = img_path.rfind(".");
+      string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
+      string res_salient = str_name + "_RC.png"; // Region contrast
+      string res_salient_bi = str_name + "_BI.png";
+      string res_salient_cut = str_name + "_CUT.png";
+
+      Mat img3f = imread(root_dir_path+ "/" + img_path);
+      CV_Assert_(img3f.data != NULL, ("Can't load image \n")); // if () continue;
+      img3f.convertTo(img3f, CV_32FC3, 1.0/255);
+
+      Mat sal1f = GetRegionContrast(img3f);
+      // save region contrast image
+      vector<int> compression_params;  // Sometimes without these parameters we can't save image
+      compression_params.push_back(IMWRITE_PNG_COMPRESSION);
+      compression_params.push_back(9);
+      imwrite(saliency_dir_path + "/" + res_salient, sal1f*255, compression_params);
+
+      //  Binarization
+      Mat sal_bi1u, img_cut3f;
+      cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
+      // sal_bi1u is 1 channel float now
+      sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+      imwrite(saliency_dir_path + "/" + res_salient_bi, sal_bi1u*255, compression_params);
+
+      CutImage(img3f, sal_bi1u, img_cut3f);
+      imwrite(saliency_dir_path + "/" + res_salient_cut, img_cut3f*255, compression_params);
+    }
   }
+
   amount = image_amount;
   time_cost = (int) std::time(0) - start_time;
+
+  // double average_precision = 0.0;
+  for (auto it = precisions.begin(), stop = precisions.end(); it != stop; ++it) {
+    average_precision += *it;
+    // cout << *it << endl;
+  }
+  // cout << average_precision / image_amount << endl;
+  average_precision /= image_amount;
   return image_amount;
 }
 
@@ -368,9 +460,9 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
 // img3f: original image
 // sal_bi1l: binaried saliency image
 // img_cut3f: colored image after cut
-void RegionContrast::CutImage(const Mat &img3f, const Mat &sal_bi1f, Mat &img_cut3f) {
-  Mat sal_bi1u;
-  sal_bi1f.convertTo(sal_bi1u, CV_8UC1);
+void RegionContrast::CutImage(const Mat &img3f, const Mat &sal_bi1u, Mat &img_cut3f) {
+  // Mat sal_bi1u;
+  // sal_bi1f.convertTo(sal_bi1u, CV_8UC1);
 
   Mat bgr[3];
   split(img3f, bgr);

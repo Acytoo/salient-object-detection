@@ -15,7 +15,8 @@ class RegionContrast{
                               std::string& res_salient,
                               std::string& res_salient_bi,
                               std::string& res_salient_cut);
-  static int ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost);
+  static int ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost,
+                           bool benchmark, double& average_precision);
 
   static void ShowImageInfo(const cv::Mat& img);
 
