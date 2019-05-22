@@ -9,6 +9,8 @@
 
 #include <saliency/saliency_region_contrast.h>
 
+using std::string;
+
 process_single_page::process_single_page(QWidget *parent) :
   QMainWindow(parent),
   ui(new Ui::process_single_page)
@@ -63,19 +65,22 @@ void process_single_page::on_button_process_clicked()
     QMessageBox::about(this, "Error", "Please choose an image!");
     return;
   }
-  std::string result_path_rc;
-  std::thread img_process_thread(regioncontrast::RegionContrast::ProcessSingleImg, std::ref(image_path_), std::ref(result_path_rc));
+
+  string res_salient, res_salient_bi, res_salient_cut;
+  std::thread img_process_thread(regioncontrast::RegionContrast::ProcessSingleImg, std::ref(image_path_), std::ref(res_salient),
+                                 std::ref(res_salient_bi), std::ref(res_salient_cut));
   img_process_thread.join();
 
-  //QPixmap img_rc(result_path_rc.c_str());
-  //ui->label_img_rc->setPixmap(img_rc.scaled(400,400,Qt::KeepAspectRatio));
-  QPixmap img_rcc(result_path_rc.c_str());
-  ui->label_img_rcc->setPixmap(img_rcc.scaled(400,400,Qt::KeepAspectRatio));
+  QPixmap img_salient(res_salient.c_str());
+  QPixmap img_salient_bi(res_salient_bi.c_str());
+  QPixmap img_salient_cut(res_salient_cut.c_str());
+  ui->label_img_salient->setPixmap(img_salient.scaled(200, 200, Qt::KeepAspectRatio));
+  ui->label_img_salient_bi->setPixmap(img_salient_bi.scaled(200, 200, Qt::KeepAspectRatio));
+  ui->label_img_salient_cut->setPixmap(img_salient_cut.scaled(400, 400, Qt::KeepAspectRatio));
 
   QString original_path = "Original image, " + QString::fromStdString(image_path_);
-  //QString result_rc_path = "RC, " + QString::fromStdString(result_path_rc);
-  QString result_rcc_path = "RC, " + QString::fromStdString(result_path_rc);
+  QString res_salent_cut_path = "Cut, " + QString::fromStdString(res_salient_cut);
+
   ui->label_original_path->setText(original_path);
-  //ui->label_result_rc_path->setText(result_rc_path);
-  ui->label_result_rcc_path->setText(result_rcc_path);
+  ui->label_result_rcc_path->setText(res_salent_cut_path);
 }
