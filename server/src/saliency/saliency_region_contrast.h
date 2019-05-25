@@ -38,7 +38,8 @@ class RegionContrast{
                                  const cv::Mat& color3fv, cv::Mat& reg_sal1dv,
                                  double sigma_dist);
 
-  // static void Binarization(const cv::Mat &sal1f, cv::Mat &sal_bi1f);
+  static void Binarization(const cv::Mat &sal1f, cv::Mat &sal_bi1u, double cut_threshold);
+  static void Binarization(const cv::Mat &sal1f, cv::Mat &sal_bi1u);
   // Cut the original colord image
   static void CutImage(const cv::Mat &img3f, const cv::Mat &sal_bi1f, cv::Mat &img_cut3f);
 

@@ -42,14 +42,14 @@ void process_single_page::on_button_browse_clicked()
                                             QString::null,
                                             QString::null);
   if (file_path_.isEmpty()) {
-    QMessageBox::about(this, "Error", "Please choose an image!");
+    QMessageBox::about(this, "Error", "Please choose an image first!");
     return;
   }
   std::string file_path =  file_path_.toUtf8().constData();
   if(!(file_path.substr(file_path.length()-4,4) == ".jpg" || file_path.substr(file_path.length()-5,5) == ".jpeg"
        || file_path.substr(file_path.length()-4,4) == ".png" || file_path.substr(file_path.length()-4,4) == ".bmp"
        )) {
-    QMessageBox::about(this, "Error", "Only JPG, PNG or BMP files are supported!");
+    QMessageBox::about(this, "Error", "Only image files are supported!");
     return;
   }
   image_path_ = file_path;
@@ -62,7 +62,7 @@ void process_single_page::on_button_browse_clicked()
 void process_single_page::on_button_process_clicked()
 {
   if (ui->edit_file_path->text().isEmpty()) {
-    QMessageBox::about(this, "Error", "Please choose an image!");
+    QMessageBox::about(this, "Error", "Please choose an image first!");
     return;
   }
 
@@ -83,4 +83,7 @@ void process_single_page::on_button_process_clicked()
 
   ui->label_original_path->setText(original_path);
   ui->label_result_rcc_path->setText(res_salent_cut_path);
+
+  ui->label_salient->setText("Salient region");
+  ui->label_binaried->setText("Binaried salient region");
 }

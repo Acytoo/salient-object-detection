@@ -147,7 +147,7 @@
      </sizepolicy>
     </property>
     <property name="text">
-     <string>---------------------------------------------------------&gt;</string>
+     <string>------------------------------------------------------&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>
@@ -223,7 +223,7 @@
     <property name="geometry">
      <rect>
       <x>510</x>
-      <y>90</y>
+      <y>80</y>
       <width>200</width>
       <height>200</height>
      </rect>
@@ -246,6 +246,38 @@
     </property>
     <property name="text">
      <string>Salient Region Binarized</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_binaried">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>550</y>
+      <width>200</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_salient">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>280</y>
+      <width>200</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

@@ -80,7 +80,7 @@
     <item row="2" column="0">
      <widget class="QPushButton" name="button_dmeo">
       <property name="text">
-       <string>OoO</string>
+       <string>Basic Functions Demo</string>
       </property>
      </widget>
     </item>

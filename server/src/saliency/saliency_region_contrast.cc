@@ -9,7 +9,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <omp.h>
 
-// #include <saliency/saliency_cut.h>
 #include <basic/block.h>
 #include <basic/graph.h>
 #include <basic/segment_image.h>
@@ -56,36 +55,20 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
 
   //  Binarization
   Mat sal_bi1u, img_cut3f;
-  cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
-  // sal_bi1u is 1 channel float now
-  sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+  Binarization(sal1f, sal_bi1u, cut_threshold);  // Binarization use average salient value
+  // Binarization(sal1f, sal_bi1u); // Binarization use max salient value
   imwrite(res_salient_bi, sal_bi1u*255, compression_params);
 
-  cout << sal_bi1u << endl;
+  // cout << sal_bi1u << endl;
   CutImage(img3f, sal_bi1u, img_cut3f);
   imwrite(res_salient_cut, img_cut3f*255, compression_params);
-
-  // Mat criterion1u =
-  //     imread("/home/acytoo/workSpace/salient-object-detection/data/saliency_test/criteria/101.png", 0); // 0 or 255
-  // imshow("criteria", criterion1u);
-  // criterion1u /= 255;
-  // cout << criterion1u << endl << endl;
-  // // cout << sal_bi1u << endl;
-  // // cout << criterion1u << endl << criterion1u.type() << endl;
-  // sal_bi1u.setTo(0, criterion1u);
-  // imshow("bi after setTo", sal_bi1u*255);
-  // waitKey(0);
-
-  // // cout << cv::sum(sal_bi1u)[0] << endl;
-  // double precisions = cv::sum(sal_bi1u)[0] / cv::sum(criterion1u)[0];
-  // cout << 1-precisions << endl;
   return 0;  //
 }
 
 
 int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost,
                                   bool benchmark, double& average_precision) {
-  cout << "benchmark " << benchmark << endl;
+  // cout << "benchmark " << benchmark << endl;
   double cut_threshold = 1.8; // threshold for colored image cut
   // Read the names of images we are going to process
   time_t start_time = std::time(0);
@@ -136,9 +119,8 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
 
       //  Binarization
       Mat sal_bi1u, img_cut3f;
-      cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
-      // sal_bi1u is 1 channel float now
-      sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+      // Binarization(sal1f, sal_bi1u, cut_threshold);
+      Binarization(sal1f, sal_bi1u); // Binarization use max salient value
       imwrite(saliency_dir_path + "/" + res_salient_bi, sal_bi1u*255, compression_params);
 
       // save colored cut
@@ -177,9 +159,8 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
 
       //  Binarization
       Mat sal_bi1u, img_cut3f;
-      cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
-      // sal_bi1u is 1 channel float now
-      sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+      // Binarization(sal1f, sal_bi1u, cut_threshold);
+      Binarization(sal1f, sal_bi1u); // Binarization use max salient value
       imwrite(saliency_dir_path + "/" + res_salient_bi, sal_bi1u*255, compression_params);
 
       CutImage(img3f, sal_bi1u, img_cut3f);
@@ -288,15 +269,15 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
                              cv::Mat &res_color3f,
                              cv::Mat &res_color_num,
                              double ratio) {
-  int color_mask_base[3] = {12, 12, 12};
-  float color_masks[3] = {color_mask_base[0] - 0.0001f,
-                          color_mask_base[1] - 0.0001f,
-                          color_mask_base[2] - 0.0001f}; // 11.9999, 11.9999, 11.9999
-  int w[3] = {color_mask_base[1] * color_mask_base[2], color_mask_base[2], 1}; // 144, 12, 1
+  int quantize_num_base[3] = {12, 12, 12};
+  float quantize_num[3] = {quantize_num_base[0] - 0.0001f,
+                          quantize_num_base[1] - 0.0001f,
+                          quantize_num_base[2] - 0.0001f}; // 11.9999, 11.9999, 11.9999
+  int color_mask[3] = {quantize_num_base[1] * quantize_num_base[2], quantize_num_base[2], 1}; // 144, 12, 1
   CV_Assert(img3f.data != NULL); // works in opencv 4
   color_idx1i = Mat::zeros(img3f.size(), CV_32S);
   int rows = img3f.rows, cols = img3f.cols;
-  if (img3f.isContinuous() && color_idx1i.isContinuous()) { // Called in 2nd times: might not continus, accelerate
+  if (img3f.isContinuous() && color_idx1i.isContinuous()) { // Accelerate
     cols *= rows;
     rows = 1;
   }
@@ -306,10 +287,10 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
   for (int y = 0; y < rows; ++y) {
     const float* p_ori_img = img3f.ptr<float>(y);
     int* p_color_idx = color_idx1i.ptr<int>(y);
-    for (int x = 0; x < cols; ++x, p_ori_img += 3) { // (B*144 + G*12 + r*1) * 11.9999 for 1st quantize
-      p_color_idx[x] = (int)(p_ori_img[0]*color_masks[0])*w[0] +
-                       (int)(p_ori_img[1]*color_masks[1])*w[1] +
-                       (int)(p_ori_img[2]*color_masks[2]);
+    for (int x = 0; x < cols; ++x, p_ori_img += 3) { // (B*144 + G*12 + r*1) * 11.9999
+      p_color_idx[x] = (int)(p_ori_img[0]*quantize_num[0])*color_mask[0] +
+                       (int)(p_ori_img[1]*quantize_num[1])*color_mask[1] +
+                       (int)(p_ori_img[2]*quantize_num[2])*color_mask[2];
       pallet[p_color_idx[x]]++;
     }
   }
@@ -317,6 +298,7 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
   // Find significant colors
   int max_num = 0;
   int count = 0;
+
   // Sort the pallet by its second value, we need to use vector<pair<>>, since map(RBTree) is sorted by its first value
   vector<pair<int, int>> num; // num{times, id}
   num.reserve(pallet.size());
@@ -329,6 +311,7 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
   for (int current_freq = num[max_num-1].first; current_freq < max_drop_num && 1 < max_num; --max_num)
     current_freq += num[max_num - 2].first;
   max_num = min(max_num, 256); // To avoid very rarely case
+  // If the number of color left is less than 10, we don't want to drop any color.
   if (max_num <= 10)
     max_num = min(10, (int)num.size());
 
@@ -340,9 +323,9 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
   // high frequency color
   vector<Vec3i> color3i(num.size());
   for (unsigned int i = 0, stop = num.size(); i < stop; ++i) {
-    color3i[i][0] = num[i].second / w[0];
-    color3i[i][1] = num[i].second % w[0] / w[1];
-    color3i[i][2] = num[i].second % w[1];
+    color3i[i][0] = num[i].second / color_mask[0];
+    color3i[i][1] = num[i].second % color_mask[0] / color_mask[1];
+    color3i[i][2] = num[i].second % color_mask[1];
   }
   // low frequency color: find the nearest high-freq color and replace it
   for (unsigned int i = max_num, stop = num.size(); i < stop; ++i) {
@@ -447,15 +430,24 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
 }
 
 // sal1f: saliency image in 1 channel float
-// sal_bi1f: saliency image after binarization, 1 channel float
-// void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1f) {
-//   CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
-//   int row = sal1f.rows, col = sal1f.cols;
-//   sal_bi1f = Mat::zeros(row, col, CV_32FC1);
-//   double threshold = cv::sum(sal1f)[0] / row / col;
-//   // cout << threshold << endl;
+// sal_bi1u: saliency image after binarization, 1 channel int
+void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u, double cut_threshold) {
+  CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
+  cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
+  // sal_bi1u is 1 channel float now
+  sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+}
 
-// }
+void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u) {
+  double cut_parameter = 0.5;
+  CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
+  double max_value = 0.0;
+  double* p_max_value = &max_value;
+  minMaxLoc(sal1f, NULL, p_max_value);
+  // cout << *p_max_value << " is the largest salient value" << endl;
+  cv::threshold(sal1f, sal_bi1u, cut_parameter * max_value, 1, THRESH_BINARY);
+  sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+}
 
 // img3f: original image
 // sal_bi1l: binaried saliency image
