@@ -28,7 +28,7 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
                                      string& res_salient,
                                      string& res_salient_bi,
                                      string& res_salient_cut) {
-  const double cut_threshold = 1.8;
+
 
   // cout << "cpp: " << __cplusplus << endl;
   int end_pos = img_path.rfind(".");
@@ -55,9 +55,33 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
 
   //  Binarization
   Mat sal_bi1u, img_cut3f;
-  Binarization(sal1f, sal_bi1u, cut_threshold);  // Binarization use average salient value
-  // Binarization(sal1f, sal_bi1u); // Binarization use max salient value
+  // Parameters for Binarization function
+  const double aver_para = 1.8;
+  const double max_para = 0.25;
+  const bool use_max = false;
+  Binarization(sal1f, sal_bi1u, aver_para, max_para, use_max);
   imwrite(res_salient_bi, sal_bi1u*255, compression_params);
+
+  // Mat criterion = imread("/home/acytoo/Pictures/6112.png", 0);
+  // criterion /= 255;
+  // Mat tmp = criterion - sal_bi1u;
+  // Mat tp = criterion - tmp;
+
+  // double tp_sum = cv::sum(tp)[0];
+  // double precision = tp_sum / cv::sum(criterion)[0];
+  // double recall = tp_sum / cv::sum(sal_bi1u)[0];
+
+
+  // cout << "precision " << precision << " recall " << recall << endl;
+
+
+
+
+
+
+
+
+
 
   // cout << sal_bi1u << endl;
   CutImage(img3f, sal_bi1u, img_cut3f);
@@ -67,7 +91,8 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
 
 
 int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost,
-                                  bool benchmark, double& average_precision) {
+                                  bool benchmark, double& average_precision, double& average_recall,
+                                  double& average_f) {
   // cout << "benchmark " << benchmark << endl;
   double cut_threshold = 1.8; // threshold for colored image cut
   // Read the names of images we are going to process
@@ -91,11 +116,22 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
   }
   // Finish make directory; Start cutting
 
-  vector<double> precisions(image_amount, 0); // precision of each cut
+  vector<double> precisions(image_amount, 0.0); // precision of each cut
+  vector<double> recalls(image_amount, 0.0);
   // cout << "image_amount " << image_amount << endl;
   // precisions.reserve(image_amount);
   // cout << "precisions capacity " << precisions.capacity() << endl;
+  vector<int> compression_params;
+  compression_params.push_back(IMWRITE_PNG_COMPRESSION);
+  compression_params.push_back(9);
+
+  const double aver_para = 1.35;
+  const double max_para = 0.25;
+  const bool use_max = false;
+
+
   if (benchmark) {
+    // Benchmark
 #pragma omp parallel for
     for (int i = 0; i < image_amount; ++i){
       string img_path = image_names[i];
@@ -111,16 +147,16 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
 
       Mat sal1f = GetRegionContrast(img3f);
       // save region contrast image
-      // parallel_for: can I put the compression_params out the fir loop????????
-      vector<int> compression_params;  // Sometimes without these parameters we can't save image
-      compression_params.push_back(IMWRITE_PNG_COMPRESSION);
-      compression_params.push_back(9);
+      // vector<int> compression_params;  // Sometimes without these parameters we can't save image
+
       imwrite(saliency_dir_path + "/" + res_salient, sal1f*255, compression_params);
 
       //  Binarization
       Mat sal_bi1u, img_cut3f;
-      // Binarization(sal1f, sal_bi1u, cut_threshold);
-      Binarization(sal1f, sal_bi1u); // Binarization use max salient value
+      // const double aver_para = 1.8;
+      // const double max_para = 0.5;
+      // const bool use_max = true;
+      Binarization(sal1f, sal_bi1u, aver_para, max_para, use_max);
       imwrite(saliency_dir_path + "/" + res_salient_bi, sal_bi1u*255, compression_params);
 
       // save colored cut
@@ -130,13 +166,21 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
       // calculate precession
       Mat criterion1u = imread(root_dir_path+ "/criteria/" + str_name + ".png", 0); // 0 or 255
       criterion1u /= 255;
-      // cout << criterion1u << endl << criterion1u.type() << endl;
-      sal_bi1u.setTo(0, criterion1u);
+      Mat tmp = criterion1u - sal_bi1u;
+      Mat tp = criterion1u - tmp;
+
+      double tp_sum = cv::sum(tp)[0];
+      precisions[i] = tp_sum / cv::sum(criterion1u)[0];
+      recalls[i] = tp_sum / cv::sum(sal_bi1u)[0];
+
+
+      // sal_bi1u.setTo(0, criterion1u);
       // cout << cv::sum(sal_bi1u)[0] << endl;
-      precisions[i] = 1 - cv::sum(sal_bi1u)[0] / cv::sum(criterion1u)[0];
+      // precisions[i] = 1 - cv::sum(sal_bi1u)[0] / cv::sum(criterion1u)[0];
       // cout << precisions[i] << endl;
     }
   } else {
+    // No benchmark
 #pragma omp parallel for
     for (int i = 0; i < image_amount; ++i){
       string img_path = image_names[i];
@@ -152,15 +196,15 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
 
       Mat sal1f = GetRegionContrast(img3f);
       // save region contrast image
-      vector<int> compression_params;  // Sometimes without these parameters we can't save image
-      compression_params.push_back(IMWRITE_PNG_COMPRESSION);
-      compression_params.push_back(9);
+      // vector<int> compression_params;
+      // Sometimes without these parameters we can't save image
+      // compression_params.push_back(IMWRITE_PNG_COMPRESSION);
+      // compression_params.push_back(9);
       imwrite(saliency_dir_path + "/" + res_salient, sal1f*255, compression_params);
 
       //  Binarization
       Mat sal_bi1u, img_cut3f;
-      // Binarization(sal1f, sal_bi1u, cut_threshold);
-      Binarization(sal1f, sal_bi1u); // Binarization use max salient value
+      Binarization(sal1f, sal_bi1u, aver_para, max_para, use_max);
       imwrite(saliency_dir_path + "/" + res_salient_bi, sal_bi1u*255, compression_params);
 
       CutImage(img3f, sal_bi1u, img_cut3f);
@@ -172,12 +216,14 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
   time_cost = (int) std::time(0) - start_time;
 
   // double average_precision = 0.0;
-  for (auto it = precisions.begin(), stop = precisions.end(); it != stop; ++it) {
-    average_precision += *it;
-    // cout << *it << endl;
+  for (int i=0; i != image_amount; ++i) {
+    average_recall += recalls[i];
+    average_precision += precisions[i];
   }
-  // cout << average_precision / image_amount << endl;
+
   average_precision /= image_amount;
+  average_recall /= image_amount;
+  average_f = average_precision * average_recall * 2 / (average_precision + average_recall);
   return image_amount;
 }
 
@@ -431,23 +477,41 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
 
 // sal1f: saliency image in 1 channel float
 // sal_bi1u: saliency image after binarization, 1 channel int
-void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u, double cut_threshold) {
-  CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
-  cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
-  // sal_bi1u is 1 channel float now
+// void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u, double cut_threshold) {
+//   CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
+//   cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
+//   // sal_bi1u is 1 channel float now
+//   sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+// }
+
+// void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u) {
+//   double cut_parameter = 0.5;
+//   CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
+//   double max_value = 0.0;
+//   double* p_max_value = &max_value;
+//   minMaxLoc(sal1f, NULL, p_max_value);
+//   // cout << *p_max_value << " is the largest salient value" << endl;
+//   cv::threshold(sal1f, sal_bi1u, cut_parameter * max_value, 1, THRESH_BINARY);
+//   sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
+// }
+
+void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u,
+                                  double aver_para, double max_para, bool use_max) {
+  CV_Assert(sal1f.type() == CV_32FC1);
+  double cut_threshold = 0.0;
+
+  if (use_max) {
+    double max_value = 0.0;
+    double* p_max_value = &max_value;
+    minMaxLoc(sal1f, NULL, p_max_value);
+    cut_threshold = max_para * max_value;
+  } else {
+    cut_threshold = aver_para * cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols;
+  }
+  cv::threshold(sal1f, sal_bi1u, cut_threshold, 1, THRESH_BINARY);
   sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
 }
 
-void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u) {
-  double cut_parameter = 0.5;
-  CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
-  double max_value = 0.0;
-  double* p_max_value = &max_value;
-  minMaxLoc(sal1f, NULL, p_max_value);
-  // cout << *p_max_value << " is the largest salient value" << endl;
-  cv::threshold(sal1f, sal_bi1u, cut_parameter * max_value, 1, THRESH_BINARY);
-  sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
-}
 
 // img3f: original image
 // sal_bi1l: binaried saliency image

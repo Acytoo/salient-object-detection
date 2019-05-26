@@ -48,13 +48,19 @@ void process_multiple_page::on_button_process_clicked()
     return;
   }
   int amount= 0, time_cost = 0;
-  double average_precision = 0.0;
+  double average_precision = 0.0, average_recall = 0.0, average_f = 0.0;
   std::string root_dir_path = ui->edit_root_path->text().toUtf8().constData();
   bool benchmark = ui->radio_benchmark->isChecked();
-  std::thread img_process_thread(regioncontrast::RegionContrast::ProcessImages, std::ref(root_dir_path), std::ref(amount), std::ref(time_cost), std::ref(benchmark), std::ref(average_precision));
+  std::thread img_process_thread(regioncontrast::RegionContrast::ProcessImages,
+                                 std::ref(root_dir_path), std::ref(amount),
+                                 std::ref(time_cost), std::ref(benchmark),
+                                 std::ref(average_precision), std::ref(average_recall),
+                                 std::ref(average_f));
   img_process_thread.join();
   string result_summary = "Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!";
   ui->label_finish->setText(QString::fromStdString("Processed " + to_string(amount) + " images in " + to_string(time_cost) + " seconds!"));
   if (benchmark)
-    ui->label_precision->setText(QString::fromStdString("Average precision for the " + to_string(amount) + " images is " + to_string(average_precision)));
+    ui->label_precision->setText(QString::fromStdString("Average precision for the " + to_string(amount) + " images is " + to_string(average_precision)
+                                                        + ", average recall is " + to_string(average_recall)
+                                                        + ", average F1 score is " + to_string(average_f)));
 }

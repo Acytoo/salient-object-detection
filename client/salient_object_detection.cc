@@ -11,27 +11,18 @@ using namespace std;
 using namespace cv;
 
 int main() {
-  string img_path = "/home/acytoo/workSpace/salient-object-detection/data/saliency_test/101.jpg";
-      // "/home/acytoo/Pictures/12.bmp";
-  // cout << "imput the path of your image file" << endl;
-  // cin >> img_path;
-  Mat ori_img3u = imread(img_path);
-  imshow("ori", ori_img3u);
-  string res_salient, res_salient_bi, res_salient_cut;
-  // string img_path = "/home/acytoo/Pictures/nfr.png";
-  // string img_path = "/home/acytoo/Pictures/white_black.jpg";
-  // string img_path = "/home/acytoo/Pictures/2colors.png";
-  // string img_path = "/home/acytoo/Pictures/hotblack.jpg";
-  // string img_path = "/home/acytoo/Pictures/black.png";
-  // jpg has 3 channels, and bmp sometimes has 4, in color
-  regioncontrast::RegionContrast::ProcessSingleImg(img_path, res_salient, res_salient_bi, res_salient_cut);
+  // string img_path = "/home/acytoo/Pictures/6112.jpg";
+  // Mat ori_img3u = imread(img_path);
+  // imshow("ori", ori_img3u);
+  // string res_salient, res_salient_bi, res_salient_cut;
+  // regioncontrast::RegionContrast::ProcessSingleImg(img_path, res_salient, res_salient_bi, res_salient_cut);
 
-  // string root_dir_path = "./test_img";
-  // int amount = 0, time_cost = 0;
-  // int number = saliencycut::SaliencyCut::ProcessImages(root_dir_path, amount, time_cost);
-  // cout << number << endl;
 
-  // cout << result_rc_path << endl;
-  // cout << result_rcc_path << endl;
+  string image_folder = "/home/acytoo/workSpace/salient-object-detection/data/saliency_test";
+  double precision=0.0, recall=0.0, f=0.0;
+  int runtime=0, amount=0;
+  regioncontrast::RegionContrast::ProcessImages(image_folder, amount, runtime,
+                                                true, precision, recall, f);
+  cout << precision << "    " << recall << "    " << f << "    " << runtime << endl;
   return 0;
 }
