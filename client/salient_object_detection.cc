@@ -24,5 +24,15 @@ int main() {
   regioncontrast::RegionContrast::ProcessImages(image_folder, amount, runtime,
                                                 true, precision, recall, f);
   cout << precision << "    " << recall << "    " << f << "    " << runtime << endl;
+
+  // Mat img3f = imread("/home/acytoo/Pictures/195780.jpg");
+  // img3f.convertTo(img3f, CV_32FC3, 1.0/255, 0);
+  // Mat salni = imread("/home/acytoo/Pictures/195780.png", 0);
+  // salni /= 255;
+  // Mat res;
+  // regioncontrast::RegionContrast::CutImage(img3f, salni, res);
+  // imshow("Res", res*255);
+  // waitKey(0);
+  // imwrite("/home/acytoo/Pictures/195780_color.png", res*255);
   return 0;
 }

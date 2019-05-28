@@ -56,7 +56,7 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
   //  Binarization
   Mat sal_bi1u, img_cut3f;
   // Parameters for Binarization function
-  const double aver_para = 1.8;
+  const double aver_para = 1.85;
   const double max_para = 0.25;
   const bool use_max = false;
   Binarization(sal1f, sal_bi1u, aver_para, max_para, use_max);
@@ -73,15 +73,6 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
 
 
   // cout << "precision " << precision << " recall " << recall << endl;
-
-
-
-
-
-
-
-
-
 
   // cout << sal_bi1u << endl;
   CutImage(img3f, sal_bi1u, img_cut3f);
@@ -125,8 +116,9 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
   compression_params.push_back(IMWRITE_PNG_COMPRESSION);
   compression_params.push_back(9);
 
-  const double aver_para = 1.35;
-  const double max_para = 0.25;
+  // max_para is the fixed threshold in Binarization.
+  const double aver_para = 1.55;
+  const double max_para = 0.34;
   const bool use_max = false;
 
 
@@ -262,7 +254,7 @@ Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
   // Larger values of sigma_dist reduce the effect of spatial weighting
   // so contrast to farther regions would contribute more to the
   // saliency of the current region
-  double sigma_dist = 0.3; // old value: 0.4
+  double sigma_dist = 4; // old value: 0.4
   double seg_k = 50;
   int seg_min_size = 200;
   double seg_sigma = 0.5;
@@ -317,8 +309,8 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
                              double ratio) {
   int quantize_num_base[3] = {12, 12, 12};
   float quantize_num[3] = {quantize_num_base[0] - 0.0001f,
-                          quantize_num_base[1] - 0.0001f,
-                          quantize_num_base[2] - 0.0001f}; // 11.9999, 11.9999, 11.9999
+                           quantize_num_base[1] - 0.0001f,
+                           quantize_num_base[2] - 0.0001f}; // 11.9999, 11.9999, 11.9999
   int color_mask[3] = {quantize_num_base[1] * quantize_num_base[2], quantize_num_base[2], 1}; // 144, 12, 1
   CV_Assert(img3f.data != NULL); // works in opencv 4
   color_idx1i = Mat::zeros(img3f.size(), CV_32S);
@@ -475,36 +467,18 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
   }
 }
 
-// sal1f: saliency image in 1 channel float
-// sal_bi1u: saliency image after binarization, 1 channel int
-// void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u, double cut_threshold) {
-//   CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
-//   cv::threshold(sal1f, sal_bi1u, cut_threshold*cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols, 1, THRESH_BINARY);
-//   // sal_bi1u is 1 channel float now
-//   sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
-// }
-
-// void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u) {
-//   double cut_parameter = 0.5;
-//   CV_Assert(sal1f.type() == CV_32FC1); // 1 channel, so sum()[0] get a double
-//   double max_value = 0.0;
-//   double* p_max_value = &max_value;
-//   minMaxLoc(sal1f, NULL, p_max_value);
-//   // cout << *p_max_value << " is the largest salient value" << endl;
-//   cv::threshold(sal1f, sal_bi1u, cut_parameter * max_value, 1, THRESH_BINARY);
-//   sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
-// }
-
 void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u,
                                   double aver_para, double max_para, bool use_max) {
   CV_Assert(sal1f.type() == CV_32FC1);
   double cut_threshold = 0.0;
 
   if (use_max) {
-    double max_value = 0.0;
-    double* p_max_value = &max_value;
-    minMaxLoc(sal1f, NULL, p_max_value);
-    cut_threshold = max_para * max_value;
+    // Fixed threshold
+    // double max_value = 0.0;
+    // double* p_max_value = &max_value;
+    // minMaxLoc(sal1f,NULL, p_max_value);
+    // cout << max_value << endl;
+    cut_threshold = max_para;
   } else {
     cut_threshold = aver_para * cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols;
   }
@@ -517,15 +491,8 @@ void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u,
 // sal_bi1l: binaried saliency image
 // img_cut3f: colored image after cut
 void RegionContrast::CutImage(const Mat &img3f, const Mat &sal_bi1u, Mat &img_cut3f) {
-  // Mat sal_bi1u;
-  // sal_bi1f.convertTo(sal_bi1u, CV_8UC1);
-
-  Mat bgr[3];
-  split(img3f, bgr);
-  bgr[0].setTo(0, sal_bi1u);
-  bgr[1].setTo(0, sal_bi1u);
-  bgr[2].setTo(0, sal_bi1u);
-  merge(bgr, 3, img_cut3f);
+  img3f.copyTo(img_cut3f);
+  img_cut3f.setTo(0, sal_bi1u);
   img_cut3f = img3f - img_cut3f;
 }
 

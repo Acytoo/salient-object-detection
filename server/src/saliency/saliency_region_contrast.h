@@ -20,6 +20,8 @@ class RegionContrast{
                            double& average_f);
 
   static void ShowImageInfo(const cv::Mat& img);
+  static void CutImage(const cv::Mat &img3f, const cv::Mat &sal_bi1f, cv::Mat &img_cut3f);
+
 
  private:
 
@@ -42,7 +44,6 @@ class RegionContrast{
   static void Binarization(const cv::Mat &sal1f, cv::Mat &sal_bi1u,
                            double aver_para, double max_para, bool use_max);
   // Cut the original colord image
-  static void CutImage(const cv::Mat &img3f, const cv::Mat &sal_bi1f, cv::Mat &img_cut3f);
 
 };
 

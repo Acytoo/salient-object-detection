@@ -168,6 +168,9 @@
       <verstretch>0</verstretch>
      </sizepolicy>
     </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
     <property name="text">
      <string>Salient Region Cut</string>
     </property>
@@ -259,6 +262,9 @@
       <width>200</width>
       <height>22</height>
      </rect>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::CustomContextMenu</enum>
     </property>
     <property name="text">
      <string/>
