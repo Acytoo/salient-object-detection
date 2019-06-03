@@ -56,7 +56,7 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
   //  Binarization
   Mat sal_bi1u, img_cut3f;
   // Parameters for Binarization function
-  const double aver_para = 1.85;
+  const double aver_para = 1.55;
   const double max_para = 0.25;
   const bool use_max = false;
   Binarization(sal1f, sal_bi1u, aver_para, max_para, use_max);
@@ -85,7 +85,7 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
                                   bool benchmark, double& average_precision, double& average_recall,
                                   double& average_f) {
   // cout << "benchmark " << benchmark << endl;
-  double cut_threshold = 1.8; // threshold for colored image cut
+  // double cut_threshold = 1.8; // threshold for colored image cut
   // Read the names of images we are going to process
   time_t start_time = std::time(0);
   int image_amount = -1;
@@ -282,6 +282,8 @@ Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
   vector<Region> regs(reg_num);
   BuildRegions(region_idx1i, regs, color_idx1i, color3fv.cols);
   RegionContrastCore(regs, color3fv, reg_sal1dv, sigma_dist);
+  // cout << " region num " << reg_num << endl;
+  // cout << reg_sal1dv << endl;
   //reg_sal1dv : 1 x region_num, 1 channel double, indicate the saliency value of each region
 
   Mat sal1f = Mat::zeros(img3f.size(), CV_32F); // greyscale salient image
@@ -358,6 +360,7 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
     pallet[num[i].second] = i;
   // pallet{id:color_precedence}, size = max_num
 
+  // Smooth
   // high frequency color
   vector<Vec3i> color3i(num.size());
   for (unsigned int i = 0, stop = num.size(); i < stop; ++i) {
@@ -376,6 +379,7 @@ int RegionContrast::Quantize(const cv::Mat &img3f,
     pallet[num[i].second] = pallet[num[sim_idx].second]; // pallet size: all color size
   }
 
+  // Histogram
   // max_num: left high frequency color's number
   res_color3f = Mat::zeros(1, max_num, CV_32FC3); // color Mat(vector) of high-freq color
   res_color_num = Mat::zeros(res_color3f.size(), CV_32S); // the number of occurences of each high-freq color
@@ -447,6 +451,7 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
       color_dist_dict1f[i][j] = color_dist_dict1f[j][i] = vecDist<float, 3>(p_color[i], p_color[j]); // Lab color
   // Region distance
   int reg_num = (int)regs.size();
+  const double k_para = -9.0;
   Mat_<double> region_dist_dict1d = Mat::zeros(reg_num, reg_num, CV_64F); // region_num x region_num, double
   reg_sal1dv = Mat::zeros(1, reg_num, CV_64F); // 1 x region_num, double
   double* p_reg_sal = (double*)reg_sal1dv.data;
@@ -458,12 +463,15 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
         const vector<CostfIdx> &c1 = regs[i].fre_idx, &c2 = regs[j].fre_idx;
         for (size_t m = 0; m < c1.size(); ++m)
           for (size_t n = 0; n < c2.size(); ++n)
+            // Color distance of each region
             dd += color_dist_dict1f[c1[m].second][c2[n].second] * c1[m].first * c2[n].first;
+
         region_dist_dict1d[j][i] = region_dist_dict1d[i][j] = dd * exp(-pntSqrDist(rc, regs[j].centroid)/sigma_dist);
       }
+      // cout << "p_reg_sal [i] before += " << p_reg_sal[i] << endl;
       p_reg_sal[i] += regs[j].pix_num * region_dist_dict1d[i][j];
     }
-    p_reg_sal[i] *= exp(-9.0 * (sqr(regs[i].ad2c.x) + sqr(regs[i].ad2c.y)));
+    p_reg_sal[i] *= exp((sqr(regs[i].ad2c.x) + sqr(regs[i].ad2c.y))*k_para);
   }
 }
 
@@ -480,7 +488,8 @@ void RegionContrast::Binarization(const Mat &sal1f, Mat &sal_bi1u,
     // cout << max_value << endl;
     cut_threshold = max_para;
   } else {
-    cut_threshold = aver_para * cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols;
+    // cut_threshold = aver_para * cv::sum(sal1f)[0]/sal1f.rows/sal1f.cols;
+    cut_threshold = aver_para * cv::mean(sal1f)[0];
   }
   cv::threshold(sal1f, sal_bi1u, cut_threshold, 1, THRESH_BINARY);
   sal_bi1u.convertTo(sal_bi1u, CV_8UC1);
