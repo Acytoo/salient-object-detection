@@ -17,10 +17,11 @@ class RegionContrast{
                               std::string& res_salient_cut);
   static int ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost,
                            bool benchmark, double& average_precision, double& average_recall,
-                           double& average_f);
+                           double& average_f, double para_given);
 
   static void ShowImageInfo(const cv::Mat& img);
   static void CutImage(const cv::Mat &img3f, const cv::Mat &sal_bi1f, cv::Mat &img_cut3f);
+  // static void MultiBench();
 
 
  private:
@@ -30,7 +31,7 @@ class RegionContrast{
     Region() { pix_num = 0; ad2c = Point2d(0, 0);}
     int pix_num;  // Number of pixels
     vector<CostfIdx> fre_idx;  // Frequency of each color and its index
-    Point2d centroid;
+    // Point2d centroid;
     Point2d ad2c; // Average distance to image center
   };
 

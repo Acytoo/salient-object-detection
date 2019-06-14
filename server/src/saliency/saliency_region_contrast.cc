@@ -56,7 +56,7 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
   //  Binarization
   Mat sal_bi1u, img_cut3f;
   // Parameters for Binarization function
-  const double aver_para = 1.55;
+  const double aver_para = 1.85;
   const double max_para = 0.25;
   const bool use_max = false;
   Binarization(sal1f, sal_bi1u, aver_para, max_para, use_max);
@@ -66,10 +66,13 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
   // criterion /= 255;
   // Mat tmp = criterion - sal_bi1u;
   // Mat tp = criterion - tmp;
+  // imshow("tp", tp*255);
+  // imshow("sal1f", sal_bi1u*255);
+  // waitKey(0);
 
   // double tp_sum = cv::sum(tp)[0];
-  // double precision = tp_sum / cv::sum(criterion)[0];
-  // double recall = tp_sum / cv::sum(sal_bi1u)[0];
+  // double recall = tp_sum / cv::sum(criterion)[0];
+  // double precision = tp_sum / cv::sum(sal_bi1u)[0];
 
 
   // cout << "precision " << precision << " recall " << recall << endl;
@@ -81,9 +84,10 @@ int RegionContrast::ProcessSingleImg(const string& img_path,
 }
 
 
+
 int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount, int& time_cost,
                                   bool benchmark, double& average_precision, double& average_recall,
-                                  double& average_f) {
+                                  double& average_f, double cut_threshold) {
   // cout << "benchmark " << benchmark << endl;
   // double cut_threshold = 1.8; // threshold for colored image cut
   // Read the names of images we are going to process
@@ -109,6 +113,8 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
 
   vector<double> precisions(image_amount, 0.0); // precision of each cut
   vector<double> recalls(image_amount, 0.0);
+  vector<double> fprs(image_amount, 0.0);
+
   // cout << "image_amount " << image_amount << endl;
   // precisions.reserve(image_amount);
   // cout << "precisions capacity " << precisions.capacity() << endl;
@@ -117,9 +123,9 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
   compression_params.push_back(9);
 
   // max_para is the fixed threshold in Binarization.
-  const double aver_para = 1.55;
-  const double max_para = 0.34;
-  const bool use_max = false;
+  const double aver_para = cut_threshold;
+  const double max_para = cut_threshold;
+  const bool use_max = true;
 
 
   if (benchmark) {
@@ -158,12 +164,17 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
       // calculate precession
       Mat criterion1u = imread(root_dir_path+ "/criteria/" + str_name + ".png", 0); // 0 or 255
       criterion1u /= 255;
+      double gt_sum = cv::sum(criterion1u)[0];
       Mat tmp = criterion1u - sal_bi1u;
       Mat tp = criterion1u - tmp;
-
       double tp_sum = cv::sum(tp)[0];
-      precisions[i] = tp_sum / cv::sum(criterion1u)[0];
-      recalls[i] = tp_sum / cv::sum(sal_bi1u)[0];
+      double p_sum = cv::sum(sal_bi1u)[0];
+      double fp_sum = p_sum - tp_sum;
+      double fp_tn_sum = sal_bi1u.rows * sal_bi1u.cols - gt_sum;
+
+      recalls[i] = tp_sum / gt_sum; // TPR
+      precisions[i] = tp_sum / p_sum;
+      fprs[i] = fp_sum / fp_tn_sum;
 
 
       // sal_bi1u.setTo(0, criterion1u);
@@ -208,14 +219,26 @@ int RegionContrast::ProcessImages(const std::string& root_dir_path, int& amount,
   time_cost = (int) std::time(0) - start_time;
 
   // double average_precision = 0.0;
+  double average_fpr = 0.0;
   for (int i=0; i != image_amount; ++i) {
     average_recall += recalls[i];
     average_precision += precisions[i];
+    average_fpr += fprs[i];
   }
 
   average_precision /= image_amount;
   average_recall /= image_amount;
   average_f = average_precision * average_recall * 2 / (average_precision + average_recall);
+  average_fpr /= image_amount;
+  // cout << average_precision << " " << average_recall << " " << average_f << " latex format " << average_fpr << endl;
+  cout << cut_threshold << " & "
+       << average_precision*100 << "\\% & "
+       << average_recall*100 << "\\% & "
+       << average_f*100 << "\\% & "
+       << average_fpr << " & "
+       << average_recall << " & "
+       << time_cost << "s \\\\" << endl
+      ;
   return image_amount;
 }
 
@@ -416,8 +439,8 @@ void RegionContrast::BuildRegions(const cv::Mat &region_idx1i,
     for (int x = 0; x < cols; ++x, ++p_reg_idx, ++p_color_idx) {
       Region &reg = regs[*p_reg_idx];
       ++reg.pix_num;
-      reg.centroid.x += x;
-      reg.centroid.y += y;
+      // reg.centroid.x += x;
+      // reg.centroid.y += y;
       ++reg_color_freq1i(*p_reg_idx, *p_color_idx);
       reg.ad2c += Point2d(abs(x - cx), abs(y - cy));
     }
@@ -425,8 +448,8 @@ void RegionContrast::BuildRegions(const cv::Mat &region_idx1i,
 
   for (int i = 0; i < reg_num; ++i) {
     Region &reg = regs[i];
-    reg.centroid.x /= reg.pix_num * cols; // percentage
-    reg.centroid.y /= reg.pix_num * rows;
+    // reg.centroid.x /= reg.pix_num * cols; // percentage
+    // reg.centroid.y /= reg.pix_num * rows;
     reg.ad2c.x /= reg.pix_num * cols;
     reg.ad2c.y /= reg.pix_num * rows;
     int *p_reg_color_freq = reg_color_freq1i.ptr<int>(i);
@@ -456,7 +479,7 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
   reg_sal1dv = Mat::zeros(1, reg_num, CV_64F); // 1 x region_num, double
   double* p_reg_sal = (double*)reg_sal1dv.data;
   for (int i = 0; i < reg_num; ++i) {
-    const Point2d &rc = regs[i].centroid;
+    // const Point2d &rc = regs[i].centroid;
     for (int j = 0; j < reg_num; ++j) {
       if(i<j) {
         double dd = 0;
@@ -466,7 +489,7 @@ void RegionContrast::RegionContrastCore(const vector<Region> &regs,
             // Color distance of each region
             dd += color_dist_dict1f[c1[m].second][c2[n].second] * c1[m].first * c2[n].first;
 
-        region_dist_dict1d[j][i] = region_dist_dict1d[i][j] = dd * exp(-pntSqrDist(rc, regs[j].centroid)/sigma_dist);
+        region_dist_dict1d[j][i] = region_dist_dict1d[i][j] = dd;// * exp(-pntSqrDist(rc, regs[j].centroid)/sigma_dist);
       }
       // cout << "p_reg_sal [i] before += " << p_reg_sal[i] << endl;
       p_reg_sal[i] += regs[j].pix_num * region_dist_dict1d[i][j];
