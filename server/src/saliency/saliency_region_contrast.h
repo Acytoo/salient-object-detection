@@ -46,6 +46,8 @@ class RegionContrast{
                              float delta,
                              const vector<vector<CostfIdx>>& similar);
 
+
+
 };
 
 }

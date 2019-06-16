@@ -35,8 +35,6 @@ class SaliencyCut {
 
 
 
-
-
  public: // Functions for GrabCut
 
   // Initial rect region in between thr1 and thr2 and others below thr1 as the Grabcut paper

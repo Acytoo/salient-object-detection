@@ -141,10 +141,15 @@ int SaliencyCut::ProcessImages(const std::string& root_dir_path, int& amount, in
   }
   // Finish make directory; Start cutting
 
+  vector<double> precisions(image_amount, 0.0); // precision of each cut
+  vector<double> recalls(image_amount, 0.0);
+  vector<double> fprs(image_amount, 0.0);
+
 #pragma omp parallel for
   for (int i = 0; i < image_amount; ++i){
     string img_path = image_names[i];
     int end_pos = img_path.rfind(".");
+    string str_name_temp = img_path.substr(0, end_pos);
     string str_name = img_path.substr(0, end_pos) + "_" + to_string(std::time(0));
     string result_rc_path = str_name + "_RC.png"; // Region contrast
     string result_rcc_path = str_name + "_RCC.png"; // Region contrast cut
@@ -170,9 +175,43 @@ int SaliencyCut::ProcessImages(const std::string& root_dir_path, int& amount, in
       imwrite(saliency_dir_path + "/" + result_rcc_path, cutMat);
     else
       cout << "EEEOR! While saving rcc" << endl;
+
+    Mat criterion1u = imread(root_dir_path+ "/criteria/" + str_name_temp + ".png", 0); // 0 or 255
+    criterion1u /= 255;
+    double gt_sum = cv::sum(criterion1u)[0];
+    Mat tmp = criterion1u - cutMat;
+    Mat tp = criterion1u - tmp;
+    double tp_sum = cv::sum(tp)[0];
+    double p_sum = cv::sum(cutMat)[0];
+    double fp_sum = p_sum - tp_sum;
+    double fp_tn_sum = cutMat.rows * cutMat.cols - gt_sum;
+
+    recalls[i] = tp_sum / gt_sum; // TPR
+    precisions[i] = tp_sum / p_sum;
+    fprs[i] = fp_sum / fp_tn_sum;
+
   }
   amount = image_amount;
   time_cost = (int) std::time(0) - start_time;
+  double average_fpr = 0.0, average_precision = 0.0, average_recall = 0.0, average_f = 0.0;
+  for (int i=0; i != image_amount; ++i) {
+    average_recall += recalls[i];
+    average_precision += precisions[i];
+    average_fpr += fprs[i];
+  }
+  average_precision /= image_amount;
+  average_recall /= image_amount;
+  average_f = average_precision * average_recall * 2 / (average_precision + average_recall);
+  average_fpr /= image_amount;
+  cout //<< cut_threshold << " & "
+       << average_precision*100 << "\\% & "
+       << average_recall*100 << "\\% & "
+       << average_f*100 << "\\% & "
+       << average_fpr << " & "
+       << average_recall << " & "
+       << time_cost << "s \\\\" << endl;
+
+
   return image_amount;
 }
 

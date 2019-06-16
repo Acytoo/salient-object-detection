@@ -32,7 +32,7 @@ Mat RegionContrast::GetRegionContrast(const cv::Mat& img3f){
   // Larger values of sigma_dist reduce the effect of spatial weighting
   // so contrast to farther regions would contribute more to the
   // saliency of the current region
-  double sigma_dist = 0.3; // old value: 0.4
+  double sigma_dist = 0.4; // old value: 0.4
   double seg_k = 50;
   int seg_min_size = 200;
   double seg_sigma = 0.5;
